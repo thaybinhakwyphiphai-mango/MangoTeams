@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MangoTeams — Paper 1.21.11 Team Plugin · Docs &amp; Source</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+  :root { --pink:#ff4fd8; --purple:#8b5cf6; --bg:#0b0713; --card:#140c22; --line:#2a1b45; }
+  body { background: radial-gradient(1200px 600px at 10% -10%, rgba(139,92,246,.20), transparent 60%),
+                     radial-gradient(900px 500px at 100% 0%, rgba(255,79,216,.14), transparent 60%), var(--bg);
+         color:#e9e3f5; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+  .grad-text { background: linear-gradient(90deg,#ff4fd8,#a78bfa); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card { background: linear-gradient(180deg, rgba(26,16,44,.9), rgba(16,10,28,.9)); border:1px solid var(--line); border-radius:16px; }
+  .glow:hover { box-shadow:0 0 0 1px rgba(255,79,216,.5), 0 10px 40px -10px rgba(255,79,216,.35); transform: translateY(-2px); }
+  .glow { transition: all .2s ease; }
+  .btn { background: linear-gradient(90deg,#ff4fd8,#8b5cf6); color:white; font-weight:600; border-radius:10px; padding:.45rem .9rem; font-size:.8rem; transition: filter .15s, transform .15s; }
+  .btn:hover { filter:brightness(1.12); transform: translateY(-1px); }
+  .btn-ghost { border:1px solid var(--line); background:rgba(255,255,255,.03); color:#d8cdf0; border-radius:10px; padding:.45rem .9rem; font-size:.8rem; transition: all .15s; }
+  .btn-ghost:hover { border-color:#ff4fd8; color:white; }
+  pre.code { background:#0a0614; border-top:1px solid var(--line); margin:0; padding:1rem 1.25rem; overflow:auto; max-height:560px;
+             font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; line-height:1.55; tab-size:4; }
+  .tk-c { color:#6b5f86; font-style:italic; } .tk-s { color:#7ee0a8; } .tk-k { color:#ff7ae6; } .tk-a { color:#f5c26b; } .tk-n { color:#7cc4ff; }
+  ::-webkit-scrollbar { width:10px; height:10px; } ::-webkit-scrollbar-thumb { background:#3a2763; border-radius:8px; } ::-webkit-scrollbar-track { background:transparent; }
+  .tag { font-size:.68rem; letter-spacing:.04em; padding:.15rem .5rem; border-radius:999px; border:1px solid var(--line); }
+  .pulse-dot { animation: pulse 1.6s infinite; } @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .logline { animation: fadein .25s ease; } @keyframes fadein { from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none} }
+  .navlink.active { color:white; background:rgba(255,79,216,.12); border-color:rgba(255,79,216,.4); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- NAV -->
+<header class="sticky top-0 z-40 backdrop-blur bg-[#0b0713]/80 border-b border-[#2a1b45]">
+  <div class="max-w-7xl mx-auto px-5 h-14 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2 font-extrabold text-lg"><span class="text-2xl">🥭</span><span class="grad-text">MangoTeams</span><span class="tag text-pink-300">1.21.11</span></a>
+    <nav class="hidden md:flex items-center gap-1 text-sm">
+      <a href="#architecture" class="px-3 py-1 rounded-lg border border-transparent hover:text-white text-zinc-400">Architecture</a>
+      <a href="#simulator" class="px-3 py-1 rounded-lg border border-transparent hover:text-white text-zinc-400">Dupe Simulator</a>
+      <a href="#commands" class="px-3 py-1 rounded-lg border border-transparent hover:text-white text-zinc-400">Commands</a>
+      <a href="#config" class="px-3 py-1 rounded-lg border border-transparent hover:text-white text-zinc-400">Config</a>
+      <a href="#ranks" class="px-3 py-1 rounded-lg border border-transparent hover:text-white text-zinc-400">Ranks</a>
+      <a href="#source" class="px-3 py-1 rounded-lg border border-transparent hover:text-white text-zinc-400">Source Code</a>
+      <a href="#build" class="px-3 py-1 rounded-lg border border-transparent hover:text-white text-zinc-400">Build</a>
+    </nav>
+    <a href="#source" class="btn">Get the code</a>
+  </div>
+</header>
+
+<main id="top" class="max-w-7xl mx-auto px-5">
+
+<!-- HERO -->
+<section class="py-16 md:py-24 text-center">
+  <div class="inline-flex items-center gap-2 tag text-pink-300 mb-5"><span class="w-2 h-2 rounded-full bg-pink-400 pulse-dot"></span> Paper 1.21.11 · Java 21 · Maven</div>
+  <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">A <span class="grad-text">dupe-proof</span>, memory-lean<br>team plugin for Paper</h1>
+  <p class="mt-5 max-w-2xl mx-auto text-zinc-400">MangoTeams is a feature-rich BetterTeams alternative: hierarchical ranks, homes &amp; warps with warmups, a shared virtual team chest with real-time access validation, and Base64-serialized YAML persistence that never loses an item.</p>
+  <div class="mt-8 flex flex-wrap justify-center gap-3">
+    <a href="#source" class="btn !px-5 !py-2.5 !text-sm">Browse source</a>
+    <a href="#simulator" class="btn-ghost !px-5 !py-2.5 !text-sm">Try the dupe-guard simulator</a>
+  </div>
+  <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+    <div class="card p-4"><div class="text-3xl font-extrabold grad-text">0</div><div class="text-xs text-zinc-400 mt-1">stale inventory copies<br>(one live chest per team)</div></div>
+    <div class="card p-4"><div class="text-3xl font-extrabold grad-text">1 tick</div><div class="text-xs text-zinc-400 mt-1">max time a revoked viewer<br>keeps the GUI open</div></div>
+    <div class="card p-4"><div class="text-3xl font-extrabold grad-text">config.yml</div><div class="text-xs text-zinc-400 mt-1">limits, timers &amp; prefixes<br>/team reload, no restart</div></div>
+    <div class="card p-4"><div class="text-3xl font-extrabold grad-text">Base64</div><div class="text-xs text-zinc-400 mt-1">NBT-safe item<br>persistence</div></div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="py-12">
+  <h2 class="text-3xl font-extrabold mb-2">Architecture</h2>
+  <p class="text-zinc-400 mb-8 max-w-3xl">Everything is event-driven — there are no polling loops over all players. Session maps are cleaned on <code class="text-pink-300">PlayerQuitEvent</code>, and chest inventories are released from RAM as soon as the last viewer closes them.</p>
+  <div class="grid md:grid-cols-3 gap-5">
+    <div class="card glow p-5"><div class="text-2xl mb-2">🧩</div><h3 class="font-bold text-lg">MangoTeams</h3><p class="text-sm text-zinc-400 mt-1">Bootstraps storage, manager, listeners and the command executor. On disable: closes every chest GUI, snapshots every team, then drains the IO queue.</p></div>
+    <div class="card glow p-5"><div class="text-2xl mb-2">🧠</div><h3 class="font-bold text-lg">TeamManager</h3><p class="text-sm text-zinc-400 mt-1">Single source of truth: <code>playerTeam</code> UUID→UUID index, invites (30s), disband confirmation (10s), warmups with primitive block coordinates, rank rules.</p></div>
+    <div class="card glow p-5"><div class="text-2xl mb-2">💾</div><h3 class="font-bold text-lg">StorageManager</h3><p class="text-sm text-zinc-400 mt-1">One YAML per team. Main thread serializes to a String; a single IO thread writes atomically (tmp + move). Chest = Base64 of Paper's NBT item bytes.</p></div>
+    <div class="card glow p-5"><div class="text-2xl mb-2">🛡️</div><h3 class="font-bold text-lg">ChestDupeListener</h3><p class="text-sm text-zinc-400 mt-1">Per-player session state, open cooldown, previous-view check, live-inventory identity check on every click/drag, creative-click block, forced close on revoke.</p></div>
+    <div class="card glow p-5"><div class="text-2xl mb-2">⌨️</div><h3 class="font-bold text-lg">TeamCommand</h3><p class="text-sm text-zinc-400 mt-1">Switch-expression router with tab completion. Every sub-command returns an error string or <code>null</code> on success.</p></div>
+    <div class="card glow p-5"><div class="text-2xl mb-2">📡</div><h3 class="font-bold text-lg">SessionListener</h3><p class="text-sm text-zinc-400 mt-1">Quit cleanup, warmup cancel on block-change / damage, and a colored team tag in chat through Paper's <code>ChatRenderer</code>.</p></div>
+  </div>
+
+  <div class="card mt-8 p-6">
+    <h3 class="font-bold text-lg mb-4">Project layout</h3>
+    <pre class="text-[13px] text-zinc-300 overflow-auto" style="font-family:ui-monospace,monospace">MangoTeams/
+├─ pom.xml
+└─ src/main/
+   ├─ resources/plugin.yml
+   ├─ resources/config.yml
+   └─ java/com/mango/mangoteams/
+      ├─ MangoTeams.java
+      ├─ config/Settings.java
+      ├─ commands/TeamCommand.java
+      ├─ listeners/ChestDupeListener.java
+      ├─ listeners/SessionListener.java
+      ├─ managers/TeamManager.java
+      ├─ managers/StorageManager.java
+      └─ model/ Rank · TeamColor · Point · Team · TeamChestHolder
+
+plugins/MangoTeams/teams/&lt;team-uuid&gt;.yml   ← persisted data</pre>
+  </div>
+</section>
+
+<!-- CONFIG -->
+<section id="config" class="py-12">
+  <h2 class="text-3xl font-extrabold mb-2">Configuration <span class="tag text-pink-300 align-middle">config.yml</span></h2>
+  <p class="text-zinc-400 mb-6 max-w-3xl">Operators tune limits, timers, team tags and chat from <code class="text-pink-300">plugins/MangoTeams/config.yml</code>. Run <code class="text-pink-300">/team reload</code> (permission <code class="text-pink-300">mangoteams.admin</code>, console allowed) to apply changes instantly. Values are validated and clamped, so a typo can't break the plugin.</p>
+  <div class="grid lg:grid-cols-3 gap-5">
+    <div class="lg:col-span-2 card overflow-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-zinc-500 text-xs uppercase"><tr><th class="px-4 py-3">Key</th><th class="px-4 py-3">Default</th><th class="px-4 py-3">Effect</th></tr></thead>
+        <tbody class="[&_tr]:border-t [&_tr]:border-[#2a1b45] [&_td]:px-4 [&_td]:py-2.5 [&_td:first-child]:font-mono [&_td:first-child]:text-pink-300 [&_td:first-child]:whitespace-nowrap [&_td:nth-child(2)]:text-purple-300 [&_td:nth-child(3)]:text-zinc-300">
+          <tr><td>limits.max-homes</td><td>3</td><td>Homes per team (0 disables). Lowering never deletes existing homes.</td></tr>
+          <tr><td>limits.max-warps</td><td>5</td><td>Warps per team (0 disables).</td></tr>
+          <tr><td>limits.max-members</td><td>0</td><td>Members per team, 0 = unlimited. Checked on invite and accept.</td></tr>
+          <tr><td>warmups.home-seconds</td><td>3</td><td>Stand-still time before /team home (0 = instant).</td></tr>
+          <tr><td>warmups.warp-seconds</td><td>5</td><td>Stand-still time before /team warp.</td></tr>
+          <tr><td>warmups.cancel-on-move / -damage</td><td>true</td><td>Toggle what cancels a pending teleport.</td></tr>
+          <tr><td>invites.expire-seconds</td><td>30</td><td>Invitation lifetime.</td></tr>
+          <tr><td>disband.confirm-seconds</td><td>10</td><td>Window for /team disband confirm.</td></tr>
+          <tr><td>team.name-min / max-length</td><td>3 / 16</td><td>Allowed team-name length.</td></tr>
+          <tr><td>team.default-color</td><td>WHITE</td><td>Colour of newly created teams.</td></tr>
+          <tr><td>team.blocked-names</td><td>admin, staff…</td><td>Forbidden team names (case-insensitive).</td></tr>
+          <tr><td>prefix.team-format</td><td>&lt;team_color&gt;[&lt;team&gt;]…</td><td>Team tag. Placeholders: &lt;team&gt;, &lt;team_color&gt;.</td></tr>
+          <tr><td>prefix.ranks.*</td><td>★ ✦ •</td><td>Symbol per rank: owner, co-owner, officer, member.</td></tr>
+          <tr><td>chat.enabled</td><td>true</td><td>Turn off to leave chat untouched.</td></tr>
+          <tr><td>chat.format</td><td>&lt;team_prefix&gt;…</td><td>Placeholders: &lt;team_prefix&gt;, &lt;rank_prefix&gt;, &lt;player&gt;, &lt;message&gt;.</td></tr>
+          <tr><td>messages.prefix</td><td>&amp;d&amp;lMango…</td><td>Prefix of every plugin message (legacy &amp; codes).</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-bold mb-3">Live chat preview</h3>
+      <div class="space-y-3 text-sm">
+        <label class="block text-xs text-zinc-500">Team name<input id="cfgName" value="Wolves" maxlength="16" class="mt-1 w-full bg-[#0a0614] border border-[#2a1b45] rounded-lg px-3 py-1.5 text-zinc-200 outline-none focus:border-pink-400"></label>
+        <label class="block text-xs text-zinc-500">Team color
+          <select id="cfgColor" class="mt-1 w-full bg-[#0a0614] border border-[#2a1b45] rounded-lg px-3 py-1.5 text-zinc-200 outline-none focus:border-pink-400">
+            <option value="#ff5555">Red</option><option value="#5555ff">Blue</option><option value="#55ff55">Green</option><option value="#ffff55">Yellow</option>
+            <option value="#aa00aa">Purple</option><option value="#ff69b4" selected>Pink</option><option value="#ff55ff">Light Purple</option><option value="#55ffff">Aqua</option><option value="#ffffff">White</option>
+          </select></label>
+        <label class="block text-xs text-zinc-500">Rank
+          <select id="cfgRank" class="mt-1 w-full bg-[#0a0614] border border-[#2a1b45] rounded-lg px-3 py-1.5 text-zinc-200 outline-none focus:border-pink-400">
+            <option value="owner">Owner</option><option value="co">Co-Owner</option><option value="officer">Officer</option><option value="member">Member</option>
+          </select></label>
+        <label class="flex items-center gap-2 text-xs text-zinc-400"><input id="cfgSymbols" type="checkbox" checked class="accent-pink-500"> Show rank symbols</label>
+        <div class="rounded-lg bg-[#0a0614] border border-[#2a1b45] p-3 text-[13px]" style="font-family:ui-monospace,monospace" id="cfgPreview"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULATOR -->
+<section id="simulator" class="py-12">
+  <h2 class="text-3xl font-extrabold mb-2">Dupe-guard simulator</h2>
+  <p class="text-zinc-400 mb-6 max-w-3xl">A client-side model of the checks in <code class="text-pink-300">ChestDupeListener</code>. Trigger scenarios and watch how the guard reacts.</p>
+  <div class="grid lg:grid-cols-5 gap-5">
+    <div class="card p-5 lg:col-span-2">
+      <div class="flex items-center justify-between mb-4">
+        <div><div class="text-xs text-zinc-500">Player</div><div class="font-bold">Steve</div></div>
+        <div id="simRank" class="tag text-pink-300">Officer</div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+        <div class="rounded-xl border border-[#2a1b45] p-3"><div class="text-xs text-zinc-500">In team</div><div id="simTeam" class="font-semibold text-emerald-400">Yes</div></div>
+        <div class="rounded-xl border border-[#2a1b45] p-3"><div class="text-xs text-zinc-500">Chest session</div><div id="simSession" class="font-semibold text-zinc-300">None</div></div>
+        <div class="rounded-xl border border-[#2a1b45] p-3"><div class="text-xs text-zinc-500">Other GUI open</div><div id="simOther" class="font-semibold text-zinc-300">No</div></div>
+        <div class="rounded-xl border border-[#2a1b45] p-3"><div class="text-xs text-zinc-500">Chest in RAM</div><div id="simRam" class="font-semibold text-zinc-300">Released</div></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button class="btn" onclick="sim.open()">/team chest</button>
+        <button class="btn-ghost" onclick="sim.spam()">Spam /team chest ×5</button>
+        <button class="btn-ghost" onclick="sim.otherGui()">Open other GUI</button>
+        <button class="btn-ghost" onclick="sim.click()">Shift-click item</button>
+        <button class="btn-ghost" onclick="sim.kick()">Kick Steve</button>
+        <button class="btn-ghost" onclick="sim.demote()">Demote to Member</button>
+        <button class="btn-ghost" onclick="sim.disband()">Disband team</button>
+        <button class="btn-ghost" onclick="sim.reset()">Reset</button>
+      </div>
+    </div>
+    <div class="card lg:col-span-3 p-0 overflow-hidden">
+      <div class="px-5 py-3 border-b border-[#2a1b45] flex items-center justify-between"><span class="font-semibold text-sm">Server log</span><button class="btn-ghost !py-1" onclick="sim.clearLog()">Clear</button></div>
+      <div id="simLog" class="p-4 h-[380px] overflow-auto text-[13px] space-y-1.5" style="font-family:ui-monospace,monospace"></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section id="commands" class="py-12">
+  <h2 class="text-3xl font-extrabold mb-2">Commands</h2>
+  <p class="text-zinc-400 mb-5">Base command <code class="text-pink-300">/team</code> · aliases <code class="text-pink-300">/t</code>, <code class="text-pink-300">/mteam</code></p>
+  <div class="flex flex-wrap gap-3 items-center mb-4">
+    <input id="cmdSearch" type="text" placeholder="Filter commands…" class="bg-[#140c22] border border-[#2a1b45] rounded-xl px-4 py-2 text-sm w-full md:w-72 outline-none focus:border-pink-400">
+    <div id="cmdFilters" class="flex flex-wrap gap-2"></div>
+  </div>
+  <div class="card overflow-hidden">
+    <div class="overflow-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-zinc-500 text-xs uppercase"><tr><th class="px-4 py-3">Command</th><th class="px-4 py-3">Description</th><th class="px-4 py-3">Min. rank</th><th class="px-4 py-3">Group</th></tr></thead>
+        <tbody id="cmdBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- RANKS -->
+<section id="ranks" class="py-12">
+  <h2 class="text-3xl font-extrabold mb-2">Ranks &amp; permissions</h2>
+  <p class="text-zinc-400 mb-6 max-w-3xl">Member → Officer → Co-Owner. A rank can only act on strictly lower ranks, and nobody can promote someone to their own rank (only the Owner creates Co-Owners).</p>
+  <div class="card overflow-auto">
+    <table class="w-full text-sm text-center">
+      <thead class="text-zinc-500 text-xs uppercase"><tr><th class="px-4 py-3 text-left">Action</th><th>Member</th><th>Officer</th><th>Co-Owner</th><th>Owner</th></tr></thead>
+      <tbody id="permBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SOURCE -->
+<section id="source" class="py-12">
+  <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+    <div><h2 class="text-3xl font-extrabold mb-2">Source code</h2><p class="text-zinc-400">Every file of the plugin. Hit <b class="text-pink-300">Copy Code</b> on any block.</p></div>
+    <button class="btn" onclick="copyAll(this)">Copy ALL files</button>
+  </div>
+  <div class="grid lg:grid-cols-[250px_1fr] gap-6">
+    <aside class="hidden lg:block"><div id="fileNav" class="sticky top-20 card p-3 space-y-1 text-sm max-h-[80vh] overflow-auto"></div></aside>
+    <div id="fileList" class="space-y-6"></div>
+  </div>
+</section>
+
+<!-- BUILD -->
+<section id="build" class="py-12 pb-24">
+  <h2 class="text-3xl font-extrabold mb-4">Build &amp; install</h2>
+  <div class="grid md:grid-cols-3 gap-5">
+    <div class="card p-5"><div class="text-pink-300 font-bold mb-1">1 · Create the layout</div><p class="text-sm text-zinc-400">Place each file at the path shown in its card header (Maven standard layout).</p></div>
+    <div class="card p-5"><div class="text-pink-300 font-bold mb-1">2 · Build</div><pre class="text-sm text-zinc-300 mt-2">mvn clean package</pre><p class="text-sm text-zinc-400 mt-2">Requires JDK 21. Output: <code>target/MangoTeams-1.0.0.jar</code></p></div>
+    <div class="card p-5"><div class="text-pink-300 font-bold mb-1">3 · Install</div><p class="text-sm text-zinc-400">Drop the jar into <code>plugins/</code> on a Paper 1.21.11 server and restart. Data appears in <code>plugins/MangoTeams/teams/</code>.</p></div>
+  </div>
+  <div class="card p-5 mt-5 text-sm text-zinc-400">
+    <b class="text-zinc-200">Design notes:</b> teams are loaded eagerly (small YAML each) but chest <code>Inventory</code> objects are created lazily and released when nobody views them. If an item blob ever fails to decode, the raw Base64 is copied to <code>teams/corrupt/</code> before anything is overwritten. The team Owner cannot leave — they must disband (with confirmation).
+  </div>
+</section>
+</main>
+
+<footer class="border-t border-[#2a1b45] py-8 text-center text-xs text-zinc-500">MangoTeams · Paper 1.21.11 · Built with 💜 for performance</footer>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-sm font-semibold text-white opacity-0 pointer-events-none transition-opacity" style="background:linear-gradient(90deg,#ff4fd8,#8b5cf6)">Copied!</div>
+
+<!-- ======================= SOURCE FILES (raw text) ======================= -->
+
+<script type="text/plain" id="src-pom">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mango</groupId>
+    <artifactId>MangoTeams</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>MangoTeams</name>
+    <description>High-performance, dupe-proof team plugin for Paper</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.name}-${project.version}</finalName>
+        <resources>
+            <!-- only plugin.yml is filtered (${project.version}); config.yml is copied untouched -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>plugin.yml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>21</release>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+</script>
+
+<script type="text/plain" id="src-plugin">
+name: MangoTeams
+version: '${project.version}'
+main: com.mango.mangoteams.MangoTeams
+api-version: '1.21'
+author: Mango
+description: High-performance, dupe-proof team plugin (BetterTeams alternative)
+
+commands:
+  team:
+    description: Main MangoTeams command
+    usage: /<command> help
+    aliases: [t, mteam]
+    permission: mangoteams.use
+
+permissions:
+  mangoteams.use:
+    description: Use /team and its basic sub-commands
+    default: true
+  mangoteams.create:
+    description: Create a team
+    default: true
+  mangoteams.chest:
+    description: Open the team chest (still requires Officer rank or higher)
+    default: true
+  mangoteams.admin:
+    description: Reload the MangoTeams configuration (/team reload)
+    default: op
+</script>
+
+<script type="text/plain" id="src-main">
+package com.mango.mangoteams;
+
+import com.mango.mangoteams.commands.TeamCommand;
+import com.mango.mangoteams.listeners.ChestDupeListener;
+import com.mango.mangoteams.listeners.SessionListener;
+import com.mango.mangoteams.managers.StorageManager;
+import com.mango.mangoteams.managers.TeamManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.java.JavaPlugin;
+import com.mango.mangoteams.config.Settings;
+
+public final class MangoTeams extends JavaPlugin {
+
+    /** Overwritten from config.yml (messages.prefix) on enable / reload. */
+    public static volatile String PREFIX = "&d&lMango&5Teams &8» &7";
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacyAmpersand();
+
+    private final Settings settings = new Settings();
+    private StorageManager storage;
+    private TeamManager teams;
+    private ChestDupeListener chestGuard;
+
+    public Settings settings() {
+        return settings;
+    }
+
+    /** Re-reads config.yml from disk; takes effect immediately for all new actions. */
+    public void reloadSettings() {
+        saveDefaultConfig();
+        reloadConfig();
+        settings.load(getConfig());
+        PREFIX = settings.messagePrefix();
+    }
+
+    @Override
+    public void onEnable() {
+        reloadSettings();
+        this.storage = new StorageManager(this);
+        this.teams = new TeamManager(this, storage);
+        this.chestGuard = new ChestDupeListener(this, teams);
+        this.teams.setChestGuard(chestGuard);
+        this.teams.loadAll();
+
+        getServer().getPluginManager().registerEvents(chestGuard, this);
+        getServer().getPluginManager().registerEvents(new SessionListener(teams), this);
+
+        PluginCommand cmd = getCommand("team");
+        if (cmd != null) {
+            TeamCommand executor = new TeamCommand(teams, chestGuard);
+            cmd.setExecutor(executor);
+            cmd.setTabCompleter(executor);
+        }
+        getLogger().info("MangoTeams enabled - " + teams.teamCount() + " team(s) loaded.");
+    }
+
+    @Override
+    public void onDisable() {
+        // 1) close every chest GUI synchronously (saves + releases inventories)
+        if (chestGuard != null) chestGuard.closeAll();
+        // 2) snapshot + queue every team, 3) drain the IO queue so nothing is lost
+        if (teams != null) teams.saveAll();
+        if (storage != null) storage.shutdown();
+    }
+
+    // ---- message helpers -------------------------------------------------
+
+    public static Component component(String legacyAmpersand) {
+        return LEGACY.deserialize(PREFIX + legacyAmpersand);
+    }
+
+    public static void msg(CommandSender target, String legacyAmpersand) {
+        target.sendMessage(component(legacyAmpersand));
+    }
+
+    public static void raw(CommandSender target, String legacyAmpersand) {
+        target.sendMessage(LEGACY.deserialize(legacyAmpersand));
+    }
+}
+</script>
+
+<script type="text/plain" id="src-config">
+# ==============================================================================
+#  MangoTeams configuration
+#
+#  Apply changes without a restart:  /team reload   (permission: mangoteams.admin)
+#
+#  Prefixes and chat use MiniMessage:  https://docs.advntr.dev/minimessage/format.html
+#  Only "messages.prefix" uses legacy &-colour codes.
+# ==============================================================================
+
+limits:
+  # Maximum homes / warps PER TEAM (0 disables the feature).
+  # Lowering a limit never deletes existing homes/warps - the team just can't add new ones.
+  max-homes: 3
+  max-warps: 5
+  # Maximum members per team (0 = unlimited).
+  max-members: 0
+
+warmups:
+  # Seconds the player must stand still before teleporting (0 = instant).
+  home-seconds: 3
+  warp-seconds: 5
+  cancel-on-move: true
+  cancel-on-damage: true
+
+invites:
+  # Seconds until a /team invite expires.
+  expire-seconds: 30
+
+disband:
+  # Seconds the owner has to type "/team disband confirm".
+  confirm-seconds: 10
+
+team:
+  name-min-length: 3
+  name-max-length: 16
+  # Colour given to newly created teams: red, blue, green, yellow, purple, pink, light_purple, aqua, white
+  default-color: WHITE
+  # Names nobody may use (case-insensitive).
+  blocked-names:
+    - admin
+    - staff
+    - owner
+    - mod
+    - server
+
+prefix:
+  # Team tag shown in chat.
+  # Placeholders: <team> (team name)  and  <team_color> (the colour chosen with /team color).
+  # Use <team_color>...</team_color> to colour a part of the tag.
+  team-format: "<team_color>[<team>]</team_color> "
+  # Symbol shown before a player's name, per rank. Empty = nothing.
+  ranks:
+    owner: "<gold>★ </gold>"
+    co-owner: "<red>✦ </red>"
+    officer: "<yellow>• </yellow>"
+    member: ""
+
+chat:
+  # Disable to leave chat completely untouched (e.g. when using another chat plugin).
+  enabled: true
+  # Placeholders: <team_prefix> <rank_prefix> <player> <message>
+  format: "<team_prefix><rank_prefix><white><player></white><dark_gray> » </dark_gray><gray><message></gray>"
+
+messages:
+  # Prefix of every plugin message (legacy & colour codes).
+  prefix: "&d&lMango&5Teams &8» &7"
+</script>
+
+<script type="text/plain" id="src-settings">
+package com.mango.mangoteams.config;
+
+import com.mango.mangoteams.model.Rank;
+import com.mango.mangoteams.model.Team;
+import com.mango.mangoteams.model.TeamColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+
+/**
+ * Validated, typed view of config.yml. Every value is read once on load/reload (no YAML lookups in hot paths)
+ * and clamped to a sane range, so a typo in the config can never break the plugin.
+ * Fields are volatile because the chat renderer reads them from asynchronous threads.
+ */
+public final class Settings {
+
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+
+    private volatile int maxHomes = 3;
+    private volatile int maxWarps = 5;
+    private volatile int maxMembers = 0;
+    private volatile int homeWarmup = 3;
+    private volatile int warpWarmup = 5;
+    private volatile boolean cancelOnMove = true;
+    private volatile boolean cancelOnDamage = true;
+    private volatile int inviteSeconds = 30;
+    private volatile int disbandConfirmSeconds = 10;
+    private volatile int nameMin = 3;
+    private volatile int nameMax = 16;
+    private volatile Set<String> blockedNames = Set.of();
+    private volatile TeamColor defaultColor = TeamColor.WHITE;
+    private volatile String messagePrefix = "&d&lMango&5Teams &8» &7";
+    private volatile boolean chatEnabled = true;
+    private volatile String chatFormat = "<team_prefix><rank_prefix><white><player></white><dark_gray> » </dark_gray><gray><message></gray>";
+    private volatile String teamPrefixFormat = "<team_color>[<team>]</team_color> ";
+    /** Indexed by Rank.ordinal(). */
+    private volatile String[] rankPrefixes = {"", "<yellow>• </yellow>", "<red>✦ </red>", "<gold>★ </gold>"};
+
+    public void load(FileConfiguration c) {
+        maxHomes = clamp(c.getInt("limits.max-homes", 3), 0, 100);
+        maxWarps = clamp(c.getInt("limits.max-warps", 5), 0, 100);
+        maxMembers = clamp(c.getInt("limits.max-members", 0), 0, 10_000);
+
+        homeWarmup = clamp(c.getInt("warmups.home-seconds", 3), 0, 300);
+        warpWarmup = clamp(c.getInt("warmups.warp-seconds", 5), 0, 300);
+        cancelOnMove = c.getBoolean("warmups.cancel-on-move", true);
+        cancelOnDamage = c.getBoolean("warmups.cancel-on-damage", true);
+
+        inviteSeconds = clamp(c.getInt("invites.expire-seconds", 30), 5, 3600);
+        disbandConfirmSeconds = clamp(c.getInt("disband.confirm-seconds", 10), 3, 300);
+
+        int min = clamp(c.getInt("team.name-min-length", 3), 1, 32);
+        nameMin = min;
+        nameMax = clamp(c.getInt("team.name-max-length", 16), min, 32);
+        Set<String> blocked = new HashSet<>();
+        for (String s : c.getStringList("team.blocked-names")) blocked.add(s.toLowerCase(Locale.ROOT));
+        blockedNames = Set.copyOf(blocked);
+        TeamColor col = TeamColor.parse(c.getString("team.default-color", "WHITE"));
+        defaultColor = col == null ? TeamColor.WHITE : col;
+
+        teamPrefixFormat = c.getString("prefix.team-format", teamPrefixFormat);
+        String[] rp = new String[Rank.values().length];
+        rp[Rank.MEMBER.ordinal()] = c.getString("prefix.ranks.member", "");
+        rp[Rank.OFFICER.ordinal()] = c.getString("prefix.ranks.officer", "<yellow>• </yellow>");
+        rp[Rank.CO_OWNER.ordinal()] = c.getString("prefix.ranks.co-owner", "<red>✦ </red>");
+        rp[Rank.OWNER.ordinal()] = c.getString("prefix.ranks.owner", "<gold>★ </gold>");
+        rankPrefixes = rp;
+
+        chatEnabled = c.getBoolean("chat.enabled", true);
+        chatFormat = c.getString("chat.format", chatFormat);
+        messagePrefix = c.getString("messages.prefix", messagePrefix);
+    }
+
+    // ---- getters ---------------------------------------------------------
+    public int maxHomes() { return maxHomes; }
+    public int maxWarps() { return maxWarps; }
+    public int maxMembers() { return maxMembers; }
+    public int homeWarmupSeconds() { return homeWarmup; }
+    public int warpWarmupSeconds() { return warpWarmup; }
+    public boolean cancelOnMove() { return cancelOnMove; }
+    public boolean cancelOnDamage() { return cancelOnDamage; }
+    public int inviteSeconds() { return inviteSeconds; }
+    public int disbandConfirmSeconds() { return disbandConfirmSeconds; }
+    public int nameMin() { return nameMin; }
+    public int nameMax() { return nameMax; }
+    public TeamColor defaultColor() { return defaultColor; }
+    public String messagePrefix() { return messagePrefix; }
+    public boolean chatEnabled() { return chatEnabled; }
+
+    public boolean isBlockedName(String name) {
+        return blockedNames.contains(name.toLowerCase(Locale.ROOT));
+    }
+
+    // ---- prefixes & chat -------------------------------------------------
+
+    /** e.g. "[Wolves] " in the team's colour. */
+    public Component teamPrefix(Team t) {
+        return MM.deserialize(teamPrefixFormat,
+                Placeholder.unparsed("team", t.getName()),
+                Placeholder.styling("team_color", t.getColor().textColor()));
+    }
+
+    public Component rankPrefix(Rank r) {
+        String raw = rankPrefixes[r.ordinal()];
+        return raw.isEmpty() ? Component.empty() : MM.deserialize(raw);
+    }
+
+    public Component formatChat(Team t, Rank rank, Component playerName, Component message) {
+        return MM.deserialize(chatFormat,
+                Placeholder.component("team_prefix", teamPrefix(t)),
+                Placeholder.component("rank_prefix", rankPrefix(rank)),
+                Placeholder.component("player", playerName),
+                Placeholder.component("message", message));
+    }
+
+    private static int clamp(int v, int lo, int hi) {
+        return Math.max(lo, Math.min(hi, v));
+    }
+}
+</script>
+
+<script type="text/plain" id="src-rank">
+package com.mango.mangoteams.model;
+
+public enum Rank {
+    MEMBER(0, "Member"),
+    OFFICER(1, "Officer"),
+    CO_OWNER(2, "Co-Owner"),
+    OWNER(3, "Owner");
+
+    private final int level;
+    private final String display;
+
+    Rank(int level, String display) {
+        this.level = level;
+        this.display = display;
+    }
+
+    public int level() { return level; }
+    public String display() { return display; }
+
+    public boolean atLeast(Rank other) { return level >= other.level; }
+    public boolean higherThan(Rank other) { return level > other.level; }
+
+    /** Member -> Officer -> Co-Owner. Co-Owner / Owner stay unchanged. */
+    public Rank promoted() {
+        return switch (this) {
+            case MEMBER -> OFFICER;
+            case OFFICER -> CO_OWNER;
+            default -> this;
+        };
+    }
+
+    public Rank demoted() {
+        return switch (this) {
+            case CO_OWNER -> OFFICER;
+            case OFFICER -> MEMBER;
+            default -> this;
+        };
+    }
+
+    public static Rank fromString(String raw) {
+        if (raw == null) return MEMBER;
+        try {
+            return valueOf(raw.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return MEMBER;
+        }
+    }
+}
+</script>
+
+<script type="text/plain" id="src-color">
+package com.mango.mangoteams.model;
+
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+
+public enum TeamColor {
+    RED("Red", NamedTextColor.RED),
+    BLUE("Blue", NamedTextColor.BLUE),
+    GREEN("Green", NamedTextColor.GREEN),
+    YELLOW("Yellow", NamedTextColor.YELLOW),
+    PURPLE("Purple", NamedTextColor.DARK_PURPLE),
+    PINK("Pink", TextColor.color(0xFF69B4)),
+    LIGHT_PURPLE("Light Purple", NamedTextColor.LIGHT_PURPLE),
+    AQUA("Aqua", NamedTextColor.AQUA),
+    WHITE("White", NamedTextColor.WHITE);
+
+    private static final TeamColor[] VALUES = values();
+    private final String display;
+    private final TextColor textColor;
+
+    TeamColor(String display, TextColor textColor) {
+        this.display = display;
+        this.textColor = textColor;
+    }
+
+    public String display() { return display; }
+    public TextColor textColor() { return textColor; }
+
+    /** Accepts "light purple", "light_purple", "Light-Purple", "RED" ... */
+    public static TeamColor parse(String raw) {
+        if (raw == null) return null;
+        String norm = raw.toLowerCase().replaceAll("[^a-z]", "");
+        for (TeamColor c : VALUES) {
+            if (c.name().replace("_", "").toLowerCase().equals(norm)) return c;
+        }
+        return null;
+    }
+
+    public static String listNames() {
+        StringBuilder sb = new StringBuilder(80);
+        for (int i = 0; i < VALUES.length; i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(VALUES[i].display);
+        }
+        return sb.toString();
+    }
+}
+</script>
+
+<script type="text/plain" id="src-point">
+package com.mango.mangoteams.model;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+/**
+ * Lightweight immutable position used for homes and warps.
+ * A Bukkit Location is only built at the moment of teleportation.
+ */
+public record Point(String world, double x, double y, double z, float yaw, float pitch) {
+
+    public static Point of(Location l) {
+        return new Point(l.getWorld().getName(), l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+    }
+
+    /** @return the Location, or null if the world is no longer loaded. */
+    public Location toLocation() {
+        World w = Bukkit.getWorld(world);
+        if (w == null) return null;
+        return new Location(w, x, y, z, yaw, pitch);
+    }
+}
+</script>
+
+<script type="text/plain" id="src-holder">
+package com.mango.mangoteams.model;
+
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
+
+/** Marker holder that lets listeners recognise a MangoTeams chest instantly. */
+public final class TeamChestHolder implements InventoryHolder {
+
+    private final Team team;
+
+    public TeamChestHolder(Team team) {
+        this.team = team;
+    }
+
+    public Team team() {
+        return team;
+    }
+
+    @Override
+    public @NotNull Inventory getInventory() {
+        return team.getOrCreateChest();
+    }
+}
+</script>
+
+<script type="text/plain" id="src-team">
+package com.mango.mangoteams.model;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+public final class Team {
+
+    // Home / warp limits are configurable: see Settings (config.yml -> limits.max-homes / max-warps)
+    public static final int CHEST_SIZE = 54;
+
+    private final UUID id;
+    private final UUID owner;
+    private volatile String name;
+    private volatile TeamColor color = TeamColor.WHITE;
+    private volatile boolean disbanded;
+
+    private final Map<UUID, Rank> members = new HashMap<>(8);
+    private final Set<UUID> banned = new HashSet<>(4);
+    private final Map<String, Point> homes = new LinkedHashMap<>(4);
+    private final Map<String, Point> warps = new LinkedHashMap<>(8);
+
+    /** Players currently holding the chest GUI open. */
+    private final Set<UUID> chestViewers = new HashSet<>(4);
+    /** Last persisted/known contents. The live Inventory (if any) is the source of truth while open. */
+    private ItemStack[] chestSnapshot = new ItemStack[CHEST_SIZE];
+    /** One shared live inventory per team -> impossible to hold two diverging copies. Lazily created. */
+    private Inventory chestInventory;
+
+    public Team(UUID id, String name, UUID owner) {
+        this.id = id;
+        this.name = name;
+        this.owner = owner;
+        this.members.put(owner, Rank.OWNER);
+    }
+
+    // ---- identity --------------------------------------------------------
+    public UUID getId() { return id; }
+    public UUID getOwner() { return owner; }
+    public String getName() { return name; }
+    public TeamColor getColor() { return color; }
+    public void setColor(TeamColor color) { this.color = color; }
+    public boolean isDisbanded() { return disbanded; }
+    public void markDisbanded() { this.disbanded = true; }
+
+    // ---- members ---------------------------------------------------------
+    public Map<UUID, Rank> getMembers() { return Collections.unmodifiableMap(members); }
+    public Rank rankOf(UUID player) { return members.get(player); }
+    public void putMember(UUID player, Rank rank) { members.put(player, rank); }
+    public void addMember(UUID player) { members.put(player, Rank.MEMBER); }
+    public void removeMember(UUID player) { members.remove(player); }
+
+    public Set<UUID> getBanned() { return banned; }
+    public boolean isBanned(UUID player) { return banned.contains(player); }
+
+    // ---- homes & warps ---------------------------------------------------
+    public Map<String, Point> getHomes() { return homes; }
+    public Map<String, Point> getWarps() { return warps; }
+
+    // ---- chest -----------------------------------------------------------
+    public Set<UUID> getChestViewers() { return chestViewers; }
+
+    public ItemStack[] getChestSnapshot() { return chestSnapshot; }
+
+    public void setChestSnapshot(ItemStack[] items) {
+        ItemStack[] copy = new ItemStack[CHEST_SIZE];
+        System.arraycopy(items, 0, copy, 0, Math.min(items.length, CHEST_SIZE));
+        this.chestSnapshot = copy;
+    }
+
+    public Inventory getOrCreateChest() {
+        if (chestInventory == null) {
+            Inventory inv = Bukkit.createInventory(new TeamChestHolder(this), CHEST_SIZE,
+                    Component.text(name + " - Team Chest", NamedTextColor.DARK_PURPLE));
+            inv.setContents(chestSnapshot);
+            chestInventory = inv;
+        }
+        return chestInventory;
+    }
+
+    /** Identity check: is this exact inventory the live chest of this team? */
+    public boolean isLiveChest(Inventory inv) {
+        return chestInventory != null && chestInventory == inv;
+    }
+
+    /** Copy live contents into the snapshot (deep clone, detached from the NMS stacks). */
+    public void snapshotChest() {
+        if (chestInventory == null) return;
+        ItemStack[] live = chestInventory.getContents();
+        ItemStack[] copy = new ItemStack[CHEST_SIZE];
+        for (int i = 0; i < live.length && i < CHEST_SIZE; i++) {
+            ItemStack it = live[i];
+            copy[i] = (it == null || it.getType().isAir()) ? null : it.clone();
+        }
+        this.chestSnapshot = copy;
+    }
+
+    /** Free the Inventory object once nobody is looking at it. */
+    public void releaseChest() {
+        if (chestViewers.isEmpty()) chestInventory = null;
+    }
+}
+</script>
+
+<script type="text/plain" id="src-storage">
+package com.mango.mangoteams.managers;
+
+import com.mango.mangoteams.MangoTeams;
+import com.mango.mangoteams.model.Point;
+import com.mango.mangoteams.model.Rank;
+import com.mango.mangoteams.model.Team;
+import com.mango.mangoteams.model.TeamColor;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+
+/**
+ * YAML persistence. Serialization (which touches ItemStacks) happens on the main thread,
+ * disk IO happens on ONE dedicated thread so writes to the same file can never interleave.
+ * Items are stored as Base64 of Paper's NBT item bytes -> enchantments, lore, components, shulker contents
+ * and custom data survive restarts and are data-version upgraded by Paper on load.
+ */
+public final class StorageManager {
+
+    private final MangoTeams plugin;
+    private final File dir;
+    private final File corruptDir;
+    private final ExecutorService io;
+
+    public StorageManager(MangoTeams plugin) {
+        this.plugin = plugin;
+        this.dir = new File(plugin.getDataFolder(), "teams");
+        this.corruptDir = new File(dir, "corrupt");
+        //noinspection ResultOfMethodCallIgnored
+        dir.mkdirs();
+        this.io = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "MangoTeams-IO");
+            t.setDaemon(false);
+            return t;
+        });
+    }
+
+    // ------------------------------------------------------------------ load
+
+    public List<Team> loadAll() {
+        List<Team> result = new ArrayList<>();
+        File[] files = dir.listFiles((d, n) -> n.endsWith(".yml"));
+        if (files == null) return result;
+        for (File f : files) {
+            try {
+                Team t = readTeam(f);
+                if (t != null) result.add(t);
+            } catch (Exception ex) {
+                plugin.getLogger().log(Level.SEVERE, "Failed to load team file " + f.getName() + " (skipped, file untouched)", ex);
+            }
+        }
+        return result;
+    }
+
+    private Team readTeam(File f) {
+        YamlConfiguration y = YamlConfiguration.loadConfiguration(f);
+        String fileName = f.getName();
+        UUID id = UUID.fromString(fileName.substring(0, fileName.length() - 4));
+        String name = y.getString("name");
+        String ownerRaw = y.getString("owner");
+        if (name == null || ownerRaw == null) return null;
+        UUID owner = UUID.fromString(ownerRaw);
+
+        Team team = new Team(id, name, owner);
+        TeamColor color = TeamColor.parse(y.getString("color", "WHITE"));
+        team.setColor(color == null ? TeamColor.WHITE : color);
+
+        ConfigurationSection ms = y.getConfigurationSection("members");
+        if (ms != null) {
+            for (String key : ms.getKeys(false)) {
+                team.putMember(UUID.fromString(key), Rank.fromString(ms.getString(key)));
+            }
+        }
+        team.putMember(owner, Rank.OWNER);
+
+        for (String b : y.getStringList("banned")) team.getBanned().add(UUID.fromString(b));
+
+        // never truncate stored data, even if an operator lowered the limits in config.yml
+        readPoints(y.getConfigurationSection("homes"), team.getHomes(), Integer.MAX_VALUE);
+        readPoints(y.getConfigurationSection("warps"), team.getWarps(), Integer.MAX_VALUE);
+
+        String chest = y.getString("chest", "");
+        if (!chest.isEmpty()) team.setChestSnapshot(decodeItems(id, chest));
+        return team;
+    }
+
+    private void readPoints(ConfigurationSection sec, Map<String, Point> out, int max) {
+        if (sec == null) return;
+        for (String key : sec.getKeys(false)) {
+            if (out.size() >= max) break;
+            ConfigurationSection s = sec.getConfigurationSection(key);
+            if (s == null) continue;
+            out.put(key, new Point(s.getString("world", "world"), s.getDouble("x"), s.getDouble("y"), s.getDouble("z"),
+                    (float) s.getDouble("yaw"), (float) s.getDouble("pitch")));
+        }
+    }
+
+    // ------------------------------------------------------------------ save
+
+    /** Serialize now (main thread), write later (IO thread). */
+    public void saveAsync(Team team) {
+        final String fileName = team.getId() + ".yml";
+        final String content = serialize(team);
+        try {
+            io.execute(() -> write(fileName, content));
+        } catch (java.util.concurrent.RejectedExecutionException ex) {
+            write(fileName, content); // executor already shut down: write inline
+        }
+    }
+
+    public void deleteAsync(Team team) {
+        final String fileName = team.getId() + ".yml";
+        Runnable r = () -> {
+            try {
+                Files.deleteIfExists(dir.toPath().resolve(fileName));
+            } catch (IOException ex) {
+                plugin.getLogger().log(Level.WARNING, "Could not delete " + fileName, ex);
+            }
+        };
+        try { io.execute(r); } catch (java.util.concurrent.RejectedExecutionException ex) { r.run(); }
+    }
+
+    public void shutdown() {
+        io.shutdown();
+        try {
+            if (!io.awaitTermination(30, TimeUnit.SECONDS)) {
+                plugin.getLogger().warning("IO queue did not drain in 30s!");
+            }
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String serialize(Team t) {
+        t.snapshotChest();
+        YamlConfiguration y = new YamlConfiguration();
+        y.set("name", t.getName());
+        y.set("color", t.getColor().name());
+        y.set("owner", t.getOwner().toString());
+        for (Map.Entry<UUID, Rank> e : t.getMembers().entrySet()) {
+            y.set("members." + e.getKey(), e.getValue().name());
+        }
+        List<String> banned = new ArrayList<>(t.getBanned().size());
+        for (UUID u : t.getBanned()) banned.add(u.toString());
+        y.set("banned", banned);
+        writePoints(y, "homes", t.getHomes());
+        writePoints(y, "warps", t.getWarps());
+        y.set("chest", encodeItems(t.getChestSnapshot()));
+        return y.saveToString();
+    }
+
+    private void writePoints(YamlConfiguration y, String root, Map<String, Point> points) {
+        for (Map.Entry<String, Point> e : points.entrySet()) {
+            String base = root + "." + e.getKey() + ".";
+            Point p = e.getValue();
+            y.set(base + "world", p.world());
+            y.set(base + "x", p.x());
+            y.set(base + "y", p.y());
+            y.set(base + "z", p.z());
+            y.set(base + "yaw", (double) p.yaw());
+            y.set(base + "pitch", (double) p.pitch());
+        }
+    }
+
+    /** Atomic write: temp file + move, so a crash can never leave a half-written team file. */
+    private void write(String fileName, String content) {
+        Path target = dir.toPath().resolve(fileName);
+        Path tmp = dir.toPath().resolve(fileName + ".tmp");
+        try {
+            Files.writeString(tmp, content, StandardCharsets.UTF_8);
+            try {
+                Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException ex) {
+                Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException ex) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to save " + fileName, ex);
+        }
+    }
+
+    // ----------------------------------------------------- Base64 item codec
+
+    private String encodeItems(ItemStack[] items) {
+        boolean any = false;
+        ItemStack[] safe = new ItemStack[items.length];
+        for (int i = 0; i < items.length; i++) {
+            ItemStack it = items[i];
+            if (it == null || it.getType().isAir()) {
+                safe[i] = new ItemStack(Material.AIR);
+            } else {
+                safe[i] = it;
+                any = true;
+            }
+        }
+        if (!any) return "";
+        return Base64.getEncoder().encodeToString(ItemStack.serializeItemsAsBytes(safe));
+    }
+
+    private ItemStack[] decodeItems(UUID teamId, String base64) {
+        try {
+            byte[] bytes = Base64.getDecoder().decode(base64);
+            ItemStack[] decoded = ItemStack.deserializeItemsFromBytes(bytes);
+            ItemStack[] out = new ItemStack[Team.CHEST_SIZE];
+            System.arraycopy(decoded, 0, out, 0, Math.min(decoded.length, Team.CHEST_SIZE));
+            return out;
+        } catch (Exception ex) {
+            plugin.getLogger().log(Level.SEVERE, "Chest of team " + teamId + " could not be decoded - raw data backed up to teams/corrupt/", ex);
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                corruptDir.mkdirs();
+                Files.writeString(new File(corruptDir, teamId + "-" + System.currentTimeMillis() + ".b64").toPath(), base64);
+            } catch (IOException ioEx) {
+                plugin.getLogger().log(Level.SEVERE, "Backup failed too", ioEx);
+            }
+            return new ItemStack[Team.CHEST_SIZE];
+        }
+    }
+}
+</script>
+
+<script type="text/plain" id="src-manager">
+package com.mango.mangoteams.managers;
+
+import com.mango.mangoteams.MangoTeams;
+import com.mango.mangoteams.listeners.ChestDupeListener;
+import com.mango.mangoteams.model.Point;
+import com.mango.mangoteams.model.Rank;
+import com.mango.mangoteams.model.Team;
+import com.mango.mangoteams.model.TeamColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+
+public final class TeamManager {
+
+    public static final String NO_TEAM = "You are not in a team.";
+    public static final String NEED_OFFICER = "You need to be an Officer or higher to do that.";
+    public static final String NEED_COOWNER = "You need to be a Co-Owner or higher to do that.";
+
+    private static final Pattern NAME_CHARS = Pattern.compile("^[A-Za-z0-9_]+$");
+    private static final Pattern POINT_NAME = Pattern.compile("^[A-Za-z0-9_]{1,16}$");
+
+    /** Live configuration (limits, timers, prefixes). Never cache values - /team reload must apply instantly. */
+    public com.mango.mangoteams.config.Settings settings() {
+        return plugin.settings();
+    }
+
+    public void reloadSettings() {
+        plugin.reloadSettings();
+    }
+
+    private record Invite(UUID teamId, long expiresAt) {}
+
+    private final MangoTeams plugin;
+    private final StorageManager storage;
+    private ChestDupeListener chestGuard;
+
+    // Concurrent: AsyncChatEvent reads the team of a player off the main thread.
+    private final Map<UUID, Team> teamsById = new ConcurrentHashMap<>();
+    private final Map<String, Team> teamsByName = new ConcurrentHashMap<>();
+    private final Map<UUID, UUID> playerTeam = new ConcurrentHashMap<>();
+
+    // Main-thread-only session caches (all purged on quit)
+    private final Map<UUID, Invite> invites = new HashMap<>();
+    private final Map<UUID, Long> disbandPending = new HashMap<>();
+    private final Map<UUID, Warmup> warmups = new HashMap<>();
+
+    public TeamManager(MangoTeams plugin, StorageManager storage) {
+        this.plugin = plugin;
+        this.storage = storage;
+    }
+
+    public void setChestGuard(ChestDupeListener guard) { this.chestGuard = guard; }
+
+    // =============================================================== lifecycle
+
+    public void loadAll() {
+        for (Team t : storage.loadAll()) register(t);
+    }
+
+    public void saveAll() {
+        for (Team t : teamsById.values()) storage.saveAsync(t);
+    }
+
+    public void persist(Team t) {
+        if (!t.isDisbanded()) storage.saveAsync(t);
+    }
+
+    public int teamCount() { return teamsById.size(); }
+
+    private void register(Team t) {
+        teamsById.put(t.getId(), t);
+        teamsByName.put(t.getName().toLowerCase(Locale.ROOT), t);
+        for (UUID m : t.getMembers().keySet()) playerTeam.put(m, t.getId());
+    }
+
+    /** Called from PlayerQuitEvent: drop EVERY per-player cache entry immediately. */
+    public void clearSession(UUID id) {
+        invites.remove(id);
+        disbandPending.remove(id);
+        cancelWarmup(id, null);
+        if (chestGuard != null) chestGuard.cleanup(id);
+    }
+
+    // =============================================================== lookups
+
+    public Team getTeam(UUID player) {
+        UUID tid = playerTeam.get(player);
+        return tid == null ? null : teamsById.get(tid);
+    }
+
+    public Team getTeamByName(String name) {
+        return name == null ? null : teamsByName.get(name.toLowerCase(Locale.ROOT));
+    }
+
+    public Iterable<Team> allTeams() { return teamsById.values(); }
+
+    /** Resolve a team member by name without any blocking profile lookups. */
+    public UUID findMemberByName(Team t, String name) {
+        for (UUID u : t.getMembers().keySet()) {
+            OfflinePlayer op = Bukkit.getOfflinePlayer(u);
+            String n = op.getName();
+            if (n != null && n.equalsIgnoreCase(name)) return u;
+        }
+        return null;
+    }
+
+    public void broadcast(Team t, String message) {
+        for (UUID u : t.getMembers().keySet()) {
+            Player p = Bukkit.getPlayer(u);
+            if (p != null) MangoTeams.msg(p, message);
+        }
+    }
+
+    private static String nameOf(UUID id) {
+        String n = Bukkit.getOfflinePlayer(id).getName();
+        return n == null ? id.toString().substring(0, 8) : n;
+    }
+
+    // =============================================================== management
+
+    public String create(Player p, String name) {
+        if (getTeam(p.getUniqueId()) != null) return "You are already in a team.";
+        var cfg = settings();
+        if (name.length() < cfg.nameMin() || name.length() > cfg.nameMax() || !NAME_CHARS.matcher(name).matches()) {
+            return "Team names must be " + cfg.nameMin() + "-" + cfg.nameMax() + " characters: letters, numbers, underscore.";
+        }
+        if (cfg.isBlockedName(name)) return "That team name is not allowed.";
+        if (teamsByName.containsKey(name.toLowerCase(Locale.ROOT))) return "That team name is already taken.";
+        Team t = new Team(UUID.randomUUID(), name, p.getUniqueId());
+        t.setColor(cfg.defaultColor());
+        register(t);
+        storage.saveAsync(t);
+        MangoTeams.msg(p, "&aTeam &f" + name + " &acreated. You are the &6Owner&a.");
+        return null;
+    }
+
+    public void requestDisband(UUID id) { disbandPending.put(id, System.currentTimeMillis()); }
+
+    public boolean confirmDisband(UUID id) {
+        Long at = disbandPending.remove(id);
+        return at != null && System.currentTimeMillis() - at <= settings().disbandConfirmSeconds() * 1000L;
+    }
+
+    public void disband(Team t) {
+        t.markDisbanded(); // from now on persist() is a no-op and chest validation fails
+        for (UUID m : new ArrayList<>(t.getMembers().keySet())) {
+            playerTeam.remove(m);
+            cancelWarmup(m, null);
+            Player pl = Bukkit.getPlayer(m);
+            if (pl != null) MangoTeams.msg(pl, "&cYour team &f" + t.getName() + " &chas been disbanded.");
+        }
+        chestGuard.revokeAll(t);
+        teamsById.remove(t.getId());
+        teamsByName.remove(t.getName().toLowerCase(Locale.ROOT));
+        invites.values().removeIf(i -> i.teamId().equals(t.getId()));
+        storage.deleteAsync(t);
+    }
+
+    public String setColor(Player p, String raw) {
+        Team t = getTeam(p.getUniqueId());
+        if (t == null) return NO_TEAM;
+        if (!t.rankOf(p.getUniqueId()).atLeast(Rank.CO_OWNER)) return NEED_COOWNER;
+        TeamColor c = TeamColor.parse(raw);
+        if (c == null) return "Unknown color. Available: " + TeamColor.listNames();
+        t.setColor(c);
+        persist(t);
+        broadcast(t, "&7Team color changed to &f" + c.display() + "&7.");
+        return null;
+    }
+
+    // =============================================================== invites
+
+    public String invite(Player sender, Player target) {
+        Team t = getTeam(sender.getUniqueId());
+        if (t == null) return NO_TEAM;
+        if (!t.rankOf(sender.getUniqueId()).atLeast(Rank.OFFICER)) return NEED_OFFICER;
+        UUID tid = target.getUniqueId();
+        if (tid.equals(sender.getUniqueId())) return "You cannot invite yourself.";
+        if (getTeam(tid) != null) return target.getName() + " is already in a team.";
+        if (t.isBanned(tid)) return target.getName() + " is banned from your team.";
+
+        int cap = settings().maxMembers();
+        if (cap > 0 && t.getMembers().size() >= cap) return "Your team is full (" + cap + " members).";
+
+        final int ttl = settings().inviteSeconds();
+        final Invite inv = new Invite(t.getId(), System.currentTimeMillis() + ttl * 1000L);
+        invites.put(tid, inv);
+        // capture the UUID only (never the Player object) so nothing is kept alive by the task
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (invites.get(tid) == inv) {
+                invites.remove(tid);
+                Player pl = Bukkit.getPlayer(tid);
+                if (pl != null) MangoTeams.msg(pl, "&7The team invitation has expired.");
+            }
+        }, ttl * 20L);
+
+        Component click = Component.text(" [ACCEPT]", NamedTextColor.GREEN, TextDecoration.BOLD)
+                .clickEvent(ClickEvent.runCommand("/team accept"))
+                .hoverEvent(HoverEvent.showText(Component.text("Click to join " + t.getName())));
+        target.sendMessage(MangoTeams.component("&d" + sender.getName() + " &7invited you to &f" + t.getName() + "&7 (" + ttl + "s)").append(click));
+        MangoTeams.msg(sender, "&aInvitation sent to &f" + target.getName() + "&a. It expires in " + ttl + " seconds.");
+        return null;
+    }
+
+    public String accept(Player p) {
+        UUID id = p.getUniqueId();
+        Invite inv = invites.remove(id);
+        if (inv == null || System.currentTimeMillis() > inv.expiresAt()) return "You have no pending invitation.";
+        Team t = teamsById.get(inv.teamId());
+        if (t == null) return "That team no longer exists.";
+        if (getTeam(id) != null) return "You are already in a team.";
+        if (t.isBanned(id)) return "You are banned from that team.";
+        int cap = settings().maxMembers();
+        if (cap > 0 && t.getMembers().size() >= cap) return "That team is full (" + cap + " members).";
+        t.addMember(id);
+        playerTeam.put(id, t.getId());
+        persist(t);
+        broadcast(t, "&f" + p.getName() + " &ajoined the team!");
+        return null;
+    }
+
+    public String deny(Player p) {
+        if (invites.remove(p.getUniqueId()) == null) return "You have no pending invitation.";
+        MangoTeams.msg(p, "&7Invitation declined.");
+        return null;
+    }
+
+    public String leave(Player p) {
+        Team t = getTeam(p.getUniqueId());
+        if (t == null) return NO_TEAM;
+        if (t.rankOf(p.getUniqueId()) == Rank.OWNER) return "The owner cannot leave. Use /team disband instead.";
+        removeMember(t, p.getUniqueId());
+        MangoTeams.msg(p, "&7You left &f" + t.getName() + "&7.");
+        broadcast(t, "&f" + p.getName() + " &7left the team.");
+        return null;
+    }
+
+    /** Central removal path: index, warmup, chest access (next-tick close) and persistence. */
+    private void removeMember(Team t, UUID id) {
+        t.removeMember(id);
+        playerTeam.remove(id);
+        cancelWarmup(id, null);
+        chestGuard.revoke(id);
+        persist(t);
+    }
+
+    // =============================================================== moderation
+
+    public String kick(Player sender, String targetName) {
+        Team t = getTeam(sender.getUniqueId());
+        if (t == null) return NO_TEAM;
+        Rank sr = t.rankOf(sender.getUniqueId());
+        if (!sr.atLeast(Rank.OFFICER)) return NEED_OFFICER;
+        UUID target = findMemberByName(t, targetName);
+        if (target == null) return targetName + " is not in your team.";
+        if (target.equals(sender.getUniqueId())) return "You cannot kick yourself. Use /team leave.";
+        if (!sr.higherThan(t.rankOf(target))) return "You can only kick members with a lower rank than yours.";
+        removeMember(t, target);
+        Player tp = Bukkit.getPlayer(target);
+        if (tp != null) MangoTeams.msg(tp, "&cYou were kicked from &f" + t.getName() + "&c.");
+        broadcast(t, "&f" + nameOf(target) + " &7was kicked by &f" + sender.getName() + "&7.");
+        return null;
+    }
+
+    public String ban(Player sender, String targetName) {
+        Team t = getTeam(sender.getUniqueId());
+        if (t == null) return NO_TEAM;
+        Rank sr = t.rankOf(sender.getUniqueId());
+        if (!sr.atLeast(Rank.CO_OWNER)) return NEED_COOWNER;
+
+        UUID target = findMemberByName(t, targetName);
+        if (target != null) {
+            if (target.equals(sender.getUniqueId())) return "You cannot ban yourself.";
+            if (!sr.higherThan(t.rankOf(target))) return "You can only ban members with a lower rank than yours.";
+            removeMember(t, target);
+        } else {
+            Player online = Bukkit.getPlayerExact(targetName);
+            if (online != null) {
+                target = online.getUniqueId();
+            } else {
+                OfflinePlayer op = Bukkit.getOfflinePlayerIfCached(targetName);
+                if (op == null) return "Unknown player (they must have joined this server before).";
+                target = op.getUniqueId();
+            }
+        }
+        if (!t.getBanned().add(target)) return targetName + " is already banned.";
+        persist(t);
+        Player tp = Bukkit.getPlayer(target);
+        if (tp != null) MangoTeams.msg(tp, "&cYou were banned from team &f" + t.getName() + "&c.");
+        broadcast(t, "&f" + targetName + " &7was banned from the team.");
+        return null;
+    }
+
+    public String unban(Player sender, String targetName) {
+        Team t = getTeam(sender.getUniqueId());
+        if (t == null) return NO_TEAM;
+        if (!t.rankOf(sender.getUniqueId()).atLeast(Rank.CO_OWNER)) return NEED_COOWNER;
+        UUID found = null;
+        for (UUID u : t.getBanned()) {
+            String n = Bukkit.getOfflinePlayer(u).getName();
+            if (n != null && n.equalsIgnoreCase(targetName)) { found = u; break; }
+        }
+        if (found == null) return targetName + " is not banned.";
+        t.getBanned().remove(found);
+        persist(t);
+        MangoTeams.msg(sender, "&aUnbanned &f" + targetName + "&a.");
+        return null;
+    }
+
+    public String promote(Player sender, String targetName) {
+        Team t = getTeam(sender.getUniqueId());
+        if (t == null) return NO_TEAM;
+        Rank sr = t.rankOf(sender.getUniqueId());
+        if (!sr.atLeast(Rank.CO_OWNER)) return NEED_COOWNER;
+        UUID target = findMemberByName(t, targetName);
+        if (target == null) return targetName + " is not in your team.";
+        Rank tr = t.rankOf(target);
+        if (tr.atLeast(Rank.CO_OWNER)) return targetName + " already has the highest promotable rank.";
+        Rank next = tr.promoted();
+        if (!sr.higherThan(next)) return "Only the Owner can promote someone to " + next.display() + ".";
+        t.putMember(target, next);
+        persist(t);
+        broadcast(t, "&f" + nameOf(target) + " &7was promoted to &d" + next.display() + "&7.");
+        return null;
+    }
+
+    public String demote(Player sender, String targetName) {
+        Team t = getTeam(sender.getUniqueId());
+        if (t == null) return NO_TEAM;
+        Rank sr = t.rankOf(sender.getUniqueId());
+        if (!sr.atLeast(Rank.CO_OWNER)) return NEED_COOWNER;
+        UUID target = findMemberByName(t, targetName);
+        if (target == null) return targetName + " is not in your team.";
+        Rank tr = t.rankOf(target);
+        if (tr == Rank.MEMBER) return targetName + " is already a Member.";
+        if (!sr.higherThan(tr)) return "You can only demote members with a lower rank than yours.";
+        Rank next = tr.demoted();
+        t.putMember(target, next);
+        if (!next.atLeast(Rank.OFFICER)) chestGuard.revoke(target); // loses chest access instantly
+        persist(t);
+        broadcast(t, "&f" + nameOf(target) + " &7was demoted to &d" + next.display() + "&7.");
+        return null;
+    }
+
+    // =============================================================== homes & warps
+
+    public String setPoint(Player p, String rawName, boolean warp) {
+        Team t = getTeam(p.getUniqueId());
+        if (t == null) return NO_TEAM;
+        if (!t.rankOf(p.getUniqueId()).atLeast(Rank.OFFICER)) return NEED_OFFICER;
+        if (!POINT_NAME.matcher(rawName).matches()) return "Names must be 1-16 characters: letters, numbers, underscore.";
+        Map<String, Point> map = warp ? t.getWarps() : t.getHomes();
+        int max = warp ? settings().maxWarps() : settings().maxHomes();
+        String key = rawName.toLowerCase(Locale.ROOT);
+        if (!map.containsKey(key) && map.size() >= max) {
+            return "Your team reached the limit of " + max + (warp ? " warps." : " homes.");
+        }
+        map.put(key, Point.of(p.getLocation()));
+        persist(t);
+        MangoTeams.msg(p, "&aTeam " + (warp ? "warp" : "home") + " &f" + key + " &aset.");
+        return null;
+    }
+
+    public String removePoint(Player p, String rawName, boolean warp) {
+        Team t = getTeam(p.getUniqueId());
+        if (t == null) return NO_TEAM;
+        if (!t.rankOf(p.getUniqueId()).atLeast(Rank.OFFICER)) return NEED_OFFICER;
+        Map<String, Point> map = warp ? t.getWarps() : t.getHomes();
+        if (map.remove(rawName.toLowerCase(Locale.ROOT)) == null) return "No such " + (warp ? "warp" : "home") + ".";
+        persist(t);
+        MangoTeams.msg(p, "&7Deleted " + (warp ? "warp" : "home") + " &f" + rawName.toLowerCase(Locale.ROOT) + "&7.");
+        return null;
+    }
+
+    public String listPoints(Player p, boolean warp) {
+        Team t = getTeam(p.getUniqueId());
+        if (t == null) return NO_TEAM;
+        Map<String, Point> map = warp ? t.getWarps() : t.getHomes();
+        MangoTeams.msg(p, "&7Team " + (warp ? "warps" : "homes") + " (&f" + map.size() + "&7/" + (warp ? settings().maxWarps() : settings().maxHomes()) + "&7): &f"
+                + (map.isEmpty() ? "none" : String.join("&7, &f", map.keySet())));
+        return null;
+    }
+
+    public String teleport(Player p, String rawName, boolean warp) {
+        Team t = getTeam(p.getUniqueId());
+        if (t == null) return NO_TEAM;
+        Map<String, Point> map = warp ? t.getWarps() : t.getHomes();
+        if (map.isEmpty()) return "Your team has no " + (warp ? "warps." : "homes.");
+        String key;
+        if (rawName == null) {
+            if (map.size() != 1) return "Specify a name: " + String.join(", ", map.keySet());
+            key = map.keySet().iterator().next();
+        } else {
+            key = rawName.toLowerCase(Locale.ROOT);
+        }
+        Point dest = map.get(key);
+        if (dest == null) return "No such " + (warp ? "warp" : "home") + ". Available: " + String.join(", ", map.keySet());
+        startWarmup(p, t, dest, key, warp ? settings().warpWarmupSeconds() : settings().homeWarmupSeconds());
+        return null;
+    }
+
+    // =============================================================== warmups
+
+    private void startWarmup(Player p, Team team, Point dest, String label, int seconds) {
+        UUID id = p.getUniqueId();
+        cancelWarmup(id, null);
+        // primitive block coordinates - no Location allocation
+        Warmup w = new Warmup(id, team, dest, label, (int) Math.floor(p.getX()), (int) Math.floor(p.getY()), (int) Math.floor(p.getZ()), seconds);
+        warmups.put(id, w);
+        w.runTaskTimer(plugin, 0L, 20L);
+        MangoTeams.msg(p, "&7Teleporting to &f" + label + " &7in &d" + seconds + "s&7 - don't move or take damage.");
+    }
+
+    public boolean hasWarmups() { return !warmups.isEmpty(); }
+
+    public void handleMove(Player p, Location to) {
+        if (!settings().cancelOnMove()) return;
+        Warmup w = warmups.get(p.getUniqueId());
+        if (w == null) return;
+        if (to.getBlockX() != w.x || to.getBlockY() != w.y || to.getBlockZ() != w.z) {
+            cancelWarmup(p.getUniqueId(), "&cTeleport cancelled - you moved.");
+        }
+    }
+
+    public void handleDamage(UUID id) {
+        if (settings().cancelOnDamage() && warmups.containsKey(id)) cancelWarmup(id, "&cTeleport cancelled - you took damage.");
+    }
+
+    public void cancelWarmup(UUID id, String reason) {
+        Warmup w = warmups.remove(id);
+        if (w == null) return;
+        w.cancel();
+        if (reason != null) {
+            Player p = Bukkit.getPlayer(id);
+            if (p != null) MangoTeams.msg(p, reason);
+        }
+    }
+
+    private final class Warmup extends BukkitRunnable {
+        final UUID id;
+        final Team team;
+        final Point dest;
+        final String label;
+        final int x, y, z;
+        int remaining;
+
+        Warmup(UUID id, Team team, Point dest, String label, int x, int y, int z, int seconds) {
+            this.id = id; this.team = team; this.dest = dest; this.label = label;
+            this.x = x; this.y = y; this.z = z; this.remaining = seconds;
+        }
+
+        @Override
+        public void run() {
+            Player p = Bukkit.getPlayer(id);
+            if (p == null) { warmups.remove(id); cancel(); return; }
+            if (remaining > 0) {
+                p.sendActionBar(Component.text("Teleporting in " + remaining + "s...", NamedTextColor.LIGHT_PURPLE));
+                remaining--;
+                return;
+            }
+            warmups.remove(id);
+            cancel();
+            if (getTeam(id) != team) { MangoTeams.msg(p, "&cTeleport cancelled - you are no longer in that team."); return; }
+            Location loc = dest.toLocation();
+            if (loc == null) { MangoTeams.msg(p, "&cThat location's world is not loaded."); return; }
+            p.teleportAsync(loc);
+            MangoTeams.msg(p, "&aTeleported to &f" + label + "&a.");
+        }
+    }
+}
+</script>
+
+<script type="text/plain" id="src-chest">
+package com.mango.mangoteams.listeners;
+
+import com.mango.mangoteams.MangoTeams;
+import com.mango.mangoteams.managers.TeamManager;
+import com.mango.mangoteams.model.Rank;
+import com.mango.mangoteams.model.Team;
+import com.mango.mangoteams.model.TeamChestHolder;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * Dupe protection for the team chest.
+ *
+ *  - Per-player session state (sessions + closing). A chest GUI that is not in this table is invalid.
+ *  - open(): cooldown, no session/closing, previous InventoryView must be the plain crafting view, rank check.
+ *  - Every click/drag re-validates membership, rank, session AND that the view's top inventory is the LIVE
+ *    shared chest instance (identity check) -> stale views / injected packets are cancelled and the GUI closed.
+ *  - revoke(): kick/leave/ban/demote/disband => instant "closing" flag (all clicks cancelled in the same tick)
+ *    and player.closeInventory() on the next tick.
+ */
+public final class ChestDupeListener implements Listener {
+
+    private static final long OPEN_COOLDOWN_MS = 750L;
+
+    private final MangoTeams plugin;
+    private final TeamManager manager;
+
+    private final Map<UUID, Team> sessions = new HashMap<>(8);
+    private final Set<UUID> closing = new HashSet<>(4);
+    private final Map<UUID, Long> lastOpen = new HashMap<>(8);
+
+    public ChestDupeListener(MangoTeams plugin, TeamManager manager) {
+        this.plugin = plugin;
+        this.manager = manager;
+    }
+
+    // ================================================================ API
+
+    /** @return an error message, or null when the chest was opened. */
+    public String open(Player p, Team t) {
+        UUID id = p.getUniqueId();
+        long now = System.currentTimeMillis();
+        Long last = lastOpen.get(id);
+        if (last != null && now - last < OPEN_COOLDOWN_MS) return "Please wait a moment before opening the chest again.";
+        lastOpen.put(id, now);
+
+        if (sessions.containsKey(id) || closing.contains(id)) return "You already have a team chest session. Close it first.";
+
+        // previous InventoryView must be fully closed (only the player's own crafting view allowed)
+        InventoryView view = p.getOpenInventory();
+        if (view.getTopInventory().getType() != InventoryType.CRAFTING) return "Close your current inventory first.";
+
+        if (!canAccess(p, t)) return "Only Officers and above can open the team chest.";
+
+        Inventory inv = t.getOrCreateChest();
+        sessions.put(id, t);
+        t.getChestViewers().add(id);
+        if (p.openInventory(inv) == null) {
+            finalizeClose(id);
+            return "The chest could not be opened.";
+        }
+        return null;
+    }
+
+    /** Instantly invalidate and force-close on the next tick. Safe to call repeatedly. */
+    public void revoke(UUID id) {
+        if (!sessions.containsKey(id)) return;
+        if (!closing.add(id)) return; // already scheduled
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Player pl = Bukkit.getPlayer(id);
+            if (pl != null) pl.closeInventory();
+            finalizeClose(id);
+        });
+    }
+
+    public void revokeAll(Team t) {
+        for (UUID id : new ArrayList<>(t.getChestViewers())) revoke(id);
+    }
+
+    /** Called on plugin disable (cannot schedule tasks there). */
+    public void closeAll() {
+        for (UUID id : new ArrayList<>(sessions.keySet())) {
+            Player pl = Bukkit.getPlayer(id);
+            if (pl != null) pl.closeInventory();
+            finalizeClose(id);
+        }
+    }
+
+    /** PlayerQuitEvent cleanup. */
+    public void cleanup(UUID id) {
+        finalizeClose(id);
+        lastOpen.remove(id);
+    }
+
+    // ================================================================ internals
+
+    private boolean canAccess(Player p, Team t) {
+        if (t.isDisbanded() || !p.isOnline()) return false;
+        UUID id = p.getUniqueId();
+        if (manager.getTeam(id) != t) return false;
+        Rank r = t.rankOf(id);
+        return r != null && r.atLeast(Rank.OFFICER);
+    }
+
+    private boolean allowed(HumanEntity he, Inventory top, TeamChestHolder holder) {
+        UUID id = he.getUniqueId();
+        Team t = holder.team();
+        if (closing.contains(id)) return false;
+        if (sessions.get(id) != t) return false;
+        if (!t.isLiveChest(top)) return false;
+        return he instanceof Player p && canAccess(p, t);
+    }
+
+    private void forceClose(HumanEntity he) {
+        UUID id = he.getUniqueId();
+        if (sessions.containsKey(id)) {
+            revoke(id);
+        } else {
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Player pl = Bukkit.getPlayer(id);
+                if (pl != null) pl.closeInventory();
+            });
+        }
+    }
+
+    /** Idempotent: save, drop session state, release RAM if nobody is looking anymore. */
+    private void finalizeClose(UUID id) {
+        Team t = sessions.remove(id);
+        closing.remove(id);
+        if (t == null) return;
+        t.getChestViewers().remove(id);
+        t.snapshotChest();
+        manager.persist(t); // no-op for disbanded teams
+        t.releaseChest();
+    }
+
+    // ================================================================ events
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onOpen(InventoryOpenEvent e) {
+        if (!(e.getInventory().getHolder(false) instanceof TeamChestHolder holder)) return;
+        // any chest GUI that was not opened through open() (other plugin, injected packet) is rejected
+        if (sessions.get(e.getPlayer().getUniqueId()) != holder.team()) e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onClick(InventoryClickEvent e) {
+        Inventory top = e.getView().getTopInventory();
+        if (!(top.getHolder(false) instanceof TeamChestHolder holder)) return;
+        HumanEntity who = e.getWhoClicked();
+        if (e.getClick() == ClickType.CREATIVE || who.getGameMode() == GameMode.SPECTATOR || !allowed(who, top, holder)) {
+            e.setCancelled(true);
+            forceClose(who);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onDrag(InventoryDragEvent e) {
+        Inventory top = e.getView().getTopInventory();
+        if (!(top.getHolder(false) instanceof TeamChestHolder holder)) return;
+        if (!allowed(e.getWhoClicked(), top, holder)) {
+            e.setCancelled(true);
+            forceClose(e.getWhoClicked());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onDrop(PlayerDropItemEvent e) {
+        Inventory top = e.getPlayer().getOpenInventory().getTopInventory();
+        if (!(top.getHolder(false) instanceof TeamChestHolder holder)) return;
+        if (!allowed(e.getPlayer(), top, holder)) {
+            e.setCancelled(true);
+            forceClose(e.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onClose(InventoryCloseEvent e) {
+        if (!(e.getInventory().getHolder(false) instanceof TeamChestHolder)) return;
+        finalizeClose(e.getPlayer().getUniqueId()); // saves immediately on close
+    }
+}
+</script>
+
+<script type="text/plain" id="src-session">
+package com.mango.mangoteams.listeners;
+
+import com.mango.mangoteams.managers.TeamManager;
+import com.mango.mangoteams.model.Team;
+import io.papermc.paper.chat.ChatRenderer;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+public final class SessionListener implements Listener {
+
+    private final TeamManager manager;
+
+    public SessionListener(TeamManager manager) {
+        this.manager = manager;
+    }
+
+    /** Immediately free every per-player cache entry. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent e) {
+        manager.clearSession(e.getPlayer().getUniqueId());
+    }
+
+    /** Warmup cancel on movement. Early-outs make this nearly free when nobody is teleporting. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onMove(PlayerMoveEvent e) {
+        if (!manager.hasWarmups() || !e.hasChangedBlock()) return;
+        manager.handleMove(e.getPlayer(), e.getTo());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onDamage(EntityDamageEvent e) {
+        if (!manager.hasWarmups()) return;
+        if (e.getEntity() instanceof Player p) manager.handleDamage(p.getUniqueId());
+    }
+
+    /** Team tag + rank symbol in chat. Format, prefixes and colours come from config.yml (prefix.* / chat.*). */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onChat(AsyncChatEvent e) {
+        final var cfg = manager.settings();
+        if (!cfg.chatEnabled()) return;
+        final var id = e.getPlayer().getUniqueId();
+        final var team = manager.getTeam(id);
+        if (team == null) return;
+        final var rank = team.rankOf(id);
+        if (rank == null) return;
+        e.renderer(ChatRenderer.viewerUnaware((source, name, message) ->
+                cfg.formatChat(team, rank, name, message)));
+    }
+}
+</script>
+
+<script type="text/plain" id="src-command">
+package com.mango.mangoteams.commands;
+
+import com.mango.mangoteams.MangoTeams;
+import com.mango.mangoteams.listeners.ChestDupeListener;
+import com.mango.mangoteams.managers.TeamManager;
+import com.mango.mangoteams.model.Rank;
+import com.mango.mangoteams.model.Team;
+import com.mango.mangoteams.model.TeamColor;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
+public final class TeamCommand implements CommandExecutor, TabCompleter {
+
+    private static final List<String> SUBS = List.of("help", "create", "disband", "color", "invite", "accept", "deny",
+            "leave", "info", "promote", "demote", "kick", "ban", "unban", "sethome", "home", "delhome", "homes",
+            "setwarp", "warp", "delwarp", "warps", "chest", "reload");
+
+    private final TeamManager m;
+    private final ChestDupeListener chest;
+
+    public TeamCommand(TeamManager manager, ChestDupeListener chest) {
+        this.m = manager;
+        this.chest = chest;
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
+        // /team reload works from console too
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            if (!sender.hasPermission("mangoteams.admin")) {
+                MangoTeams.msg(sender, "&cNo permission.");
+            } else {
+                m.reloadSettings();
+                MangoTeams.msg(sender, "&aMangoTeams configuration reloaded.");
+            }
+            return true;
+        }
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage("MangoTeams commands can only be used by players.");
+            return true;
+        }
+        if (args.length == 0) { help(p); return true; }
+
+        String sub = args[0].toLowerCase(Locale.ROOT);
+        String a1 = args.length > 1 ? args[1] : null;
+
+        String error = switch (sub) {
+            case "create" -> !p.hasPermission("mangoteams.create") ? "No permission."
+                    : a1 == null ? usage("/team create <name>") : m.create(p, a1);
+            case "disband" -> disband(p, a1);
+            case "color", "colour" -> a1 == null ? usage("/team color <color>")
+                    : m.setColor(p, String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)));
+            case "invite" -> a1 == null ? usage("/team invite <player>") : invite(p, a1);
+            case "accept", "join" -> m.accept(p);
+            case "deny" -> m.deny(p);
+            case "leave" -> m.leave(p);
+            case "info" -> info(p, a1);
+            case "promote" -> a1 == null ? usage("/team promote <player>") : m.promote(p, a1);
+            case "demote" -> a1 == null ? usage("/team demote <player>") : m.demote(p, a1);
+            case "kick" -> a1 == null ? usage("/team kick <player>") : m.kick(p, a1);
+            case "ban" -> a1 == null ? usage("/team ban <player>") : m.ban(p, a1);
+            case "unban" -> a1 == null ? usage("/team unban <player>") : m.unban(p, a1);
+            case "sethome" -> a1 == null ? usage("/team sethome <name>") : m.setPoint(p, a1, false);
+            case "home" -> m.teleport(p, a1, false);
+            case "delhome" -> a1 == null ? usage("/team delhome <name>") : m.removePoint(p, a1, false);
+            case "homes" -> m.listPoints(p, false);
+            case "setwarp" -> a1 == null ? usage("/team setwarp <name>") : m.setPoint(p, a1, true);
+            case "warp" -> m.teleport(p, a1, true);
+            case "delwarp" -> a1 == null ? usage("/team delwarp <name>") : m.removePoint(p, a1, true);
+            case "warps" -> m.listPoints(p, true);
+            case "chest" -> openChest(p);
+            default -> { help(p); yield null; }
+        };
+
+        if (error != null) MangoTeams.msg(p, "&c" + error);
+        return true;
+    }
+
+    private static String usage(String s) { return "Usage: " + s; }
+
+    // ------------------------------------------------------------ sub-commands
+
+    private String disband(Player p, String a1) {
+        Team t = m.getTeam(p.getUniqueId());
+        if (t == null) return TeamManager.NO_TEAM;
+        if (t.rankOf(p.getUniqueId()) != Rank.OWNER) return "Only the team Owner can disband the team.";
+        if (a1 != null && a1.equalsIgnoreCase("confirm")) {
+            if (!m.confirmDisband(p.getUniqueId())) return "Nothing to confirm (or it expired). Run /team disband first.";
+            m.disband(t);
+            return null;
+        }
+        m.requestDisband(p.getUniqueId());
+        MangoTeams.msg(p, "&c&lWARNING: &7This permanently deletes &f" + t.getName() + "&7 and its chest!");
+        MangoTeams.msg(p, "&7Type &c/team disband confirm &7within &c" + m.settings().disbandConfirmSeconds() + " seconds&7 to proceed.");
+        return null;
+    }
+
+    private String invite(Player p, String name) {
+        Player target = Bukkit.getPlayerExact(name);
+        if (target == null) return name + " is not online.";
+        return m.invite(p, target);
+    }
+
+    private String openChest(Player p) {
+        if (!p.hasPermission("mangoteams.chest")) return "No permission.";
+        Team t = m.getTeam(p.getUniqueId());
+        if (t == null) return TeamManager.NO_TEAM;
+        return chest.open(p, t);
+    }
+
+    private String info(Player p, String name) {
+        Team t = name == null ? m.getTeam(p.getUniqueId()) : m.getTeamByName(name);
+        if (t == null) return name == null ? TeamManager.NO_TEAM : "No team named " + name + ".";
+        MangoTeams.raw(p, "&8&m      &r " + "&d&l" + t.getName() + " &8&m      ");
+        MangoTeams.raw(p, "&7Color: &f" + t.getColor().display() + "  &7Homes: &f" + t.getHomes().size() + "/" + m.settings().maxHomes()
+                + "  &7Warps: &f" + t.getWarps().size() + "/" + m.settings().maxWarps());
+        StringBuilder sb = new StringBuilder(128);
+        for (Map.Entry<UUID, Rank> e : t.getMembers().entrySet()) {
+            OfflinePlayer op = Bukkit.getOfflinePlayer(e.getKey());
+            if (sb.length() > 0) sb.append("&7, ");
+            sb.append(op.isOnline() ? "&a" : "&8").append(op.getName() == null ? "?" : op.getName())
+              .append(" &7(").append(e.getValue().display()).append(")");
+        }
+        MangoTeams.raw(p, "&7Members (&f" + t.getMembers().size() + "&7): " + sb);
+        return null;
+    }
+
+    private void help(Player p) {
+        MangoTeams.raw(p, "&8&m        &r &d&lMangoTeams &8&m        ");
+        String[] lines = {
+                "/team create <name> &8- &7create a team",
+                "/team disband [confirm] &8- &7disband (owner)",
+                "/team color <color> &8- &7change tag color",
+                "/team invite <player> &8- &7invite (officer+)",
+                "/team accept | deny | leave | info [team]",
+                "/team promote | demote <player> &8- &7ranks (co-owner+)",
+                "/team kick <player> &8- &7kick (officer+)",
+                "/team ban | unban <player> &8- &7ban (co-owner+)",
+                "/team sethome | home | delhome <name> &8- &7team homes",
+                "/team setwarp | warp | delwarp <name> &8- &7team warps",
+                "/team chest &8- &7shared 54-slot chest (officer+)",
+                "/team reload &8- &7reload config.yml (admin)"
+        };
+        for (String l : lines) MangoTeams.raw(p, "&d" + l);
+    }
+
+    // ------------------------------------------------------------ tab complete
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
+        List<String> out = new ArrayList<>();
+        if (!(sender instanceof Player p)) return out;
+        if (args.length == 1) {
+            String pre = args[0].toLowerCase(Locale.ROOT);
+            for (String s : SUBS) if (s.startsWith(pre)) out.add(s);
+            return out;
+        }
+        if (args.length != 2) return out;
+        String pre = args[1].toLowerCase(Locale.ROOT);
+        switch (args[0].toLowerCase(Locale.ROOT)) {
+            case "color", "colour" -> {
+                for (TeamColor c : TeamColor.values()) if (c.name().toLowerCase(Locale.ROOT).startsWith(pre)) out.add(c.name().toLowerCase(Locale.ROOT));
+            }
+            case "invite", "ban" -> {
+                for (Player o : Bukkit.getOnlinePlayers()) if (o.getName().toLowerCase(Locale.ROOT).startsWith(pre)) out.add(o.getName());
+            }
+            case "kick", "promote", "demote" -> {
+                Team t = m.getTeam(p.getUniqueId());
+                if (t != null) for (UUID u : t.getMembers().keySet()) {
+                    String n = Bukkit.getOfflinePlayer(u).getName();
+                    if (n != null && n.toLowerCase(Locale.ROOT).startsWith(pre)) out.add(n);
+                }
+            }
+            case "home", "delhome" -> addKeys(m.getTeam(p.getUniqueId()), false, pre, out);
+            case "warp", "delwarp" -> addKeys(m.getTeam(p.getUniqueId()), true, pre, out);
+            case "info" -> {
+                for (Team t : m.allTeams()) if (t.getName().toLowerCase(Locale.ROOT).startsWith(pre)) out.add(t.getName());
+            }
+            default -> { }
+        }
+        return out;
+    }
+
+    private void addKeys(Team t, boolean warp, String pre, List<String> out) {
+        if (t == null) return;
+        for (String k : (warp ? t.getWarps() : t.getHomes()).keySet()) if (k.startsWith(pre)) out.add(k);
+    }
+}
+</script>
+
+<!-- ======================= PAGE LOGIC ======================= -->
+<script>
+// ---------- helpers ----------
+const $ = (s, r = document) => r.querySelector(s);
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.style.opacity = 1;
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.style.opacity = 0, 1600);
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = 0;
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
+    ta.remove(); return ok;
+  }
+}
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// ---------- syntax highlighting (lightweight) ----------
+const JAVA_KW = 'package|import|public|private|protected|static|final|class|interface|enum|record|extends|implements|new|return|if|else|for|while|switch|case|default|yield|try|catch|throw|throws|void|boolean|int|long|double|float|byte|char|null|true|false|this|instanceof|volatile|synchronized';
+const RX_JAVA = new RegExp('(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)|("(?:\\\\.|[^"\\\\\\n])*")|(@\\w+)|\\b(' + JAVA_KW + ')\\b|\\b(\\d[\\d_]*[LlFfDd]?)\\b', 'g');
+const RX_DATA = /(#[^\n]*|<!--[\s\S]*?-->)|("[^"\n]*"|'[^'\n]*')|(<\/?[\w:.-]+|\/?>|<\?xml|\?>)|(\b[\w.-]+(?=:\s|:$))()/gm;
+
+function highlight(code, lang) {
+  const rx = lang === 'java' ? RX_JAVA : RX_DATA;
+  rx.lastIndex = 0;
+  let out = '', last = 0, m;
+  while ((m = rx.exec(code)) !== null) {
+    out += esc(code.slice(last, m.index));
+    const txt = esc(m[0]);
+    if (lang === 'java') {
+      if (m[1]) out += `<span class="tk-c">${txt}</span>`;
+      else if (m[2]) out += `<span class="tk-s">${txt}</span>`;
+      else if (m[3]) out += `<span class="tk-a">${txt}</span>`;
+      else if (m[4]) out += `<span class="tk-k">${txt}</span>`;
+      else out += `<span class="tk-n">${txt}</span>`;
+    } else {
+      if (m[1]) out += `<span class="tk-c">${txt}</span>`;
+      else if (m[2]) out += `<span class="tk-s">${txt}</span>`;
+      else if (m[3]) out += `<span class="tk-k">${txt}</span>`;
+      else out += `<span class="tk-a">${txt}</span>`;
+    }
+    last = m.index + m[0].length;
+    if (m[0].length === 0) rx.lastIndex++;
+  }
+  return out + esc(code.slice(last));
+}
+
+// ---------- files ----------
+const FILES = [
+  { id: 'pom',     src: 'src-pom',     path: 'pom.xml',                                                             lang: 'xml',  note: 'Maven · Paper 1.21.11 API · Java 21' },
+  { id: 'plugin',  src: 'src-plugin',  path: 'src/main/resources/plugin.yml',                                       lang: 'yaml', note: 'Command, aliases, permissions' },
+  { id: 'config',  src: 'src-config',  path: 'src/main/resources/config.yml',                                       lang: 'yaml', note: 'Limits, timers, prefixes, chat format' },
+  { id: 'settings', src: 'src-settings', path: 'src/main/java/com/mango/mangoteams/config/Settings.java',          lang: 'java', note: 'Validated, typed config snapshot' },
+  { id: 'main',    src: 'src-main',    path: 'src/main/java/com/mango/mangoteams/MangoTeams.java',                   lang: 'java', note: 'Main class' },
+  { id: 'manager', src: 'src-manager', path: 'src/main/java/com/mango/mangoteams/managers/TeamManager.java',         lang: 'java', note: 'Rules, invites, warmups, ranks' },
+  { id: 'storage', src: 'src-storage', path: 'src/main/java/com/mango/mangoteams/managers/StorageManager.java',      lang: 'java', note: 'YAML + Base64 NBT serialization' },
+  { id: 'chest',   src: 'src-chest',   path: 'src/main/java/com/mango/mangoteams/listeners/ChestDupeListener.java',  lang: 'java', note: 'Packet / inventory-state validation' },
+  { id: 'session', src: 'src-session', path: 'src/main/java/com/mango/mangoteams/listeners/SessionListener.java',    lang: 'java', note: 'Quit cleanup, warmup cancel, chat tag' },
+  { id: 'command', src: 'src-command', path: 'src/main/java/com/mango/mangoteams/commands/TeamCommand.java',         lang: 'java', note: '/team router + tab completion' },
+  { id: 'team',    src: 'src-team',    path: 'src/main/java/com/mango/mangoteams/model/Team.java',                   lang: 'java', note: 'Team model + shared chest' },
+  { id: 'holder',  src: 'src-holder',  path: 'src/main/java/com/mango/mangoteams/model/TeamChestHolder.java',        lang: 'java', note: 'Inventory holder marker' },
+  { id: 'rank',    src: 'src-rank',    path: 'src/main/java/com/mango/mangoteams/model/Rank.java',                   lang: 'java', note: 'Rank enum' },
+  { id: 'color',   src: 'src-color',   path: 'src/main/java/com/mango/mangoteams/model/TeamColor.java',              lang: 'java', note: 'Color enum + parser' },
+  { id: 'point',   src: 'src-point',   path: 'src/main/java/com/mango/mangoteams/model/Point.java',                  lang: 'java', note: 'Lightweight home/warp record' },
+];
+FILES.forEach(f => f.code = $('#' + f.src).textContent.replace(/^\n/, '').replace(/\s+$/, '') + '\n');
+
+const fileList = $('#fileList'), fileNav = $('#fileNav');
+FILES.forEach(f => {
+  const lines = f.code.split('\n').length - 1;
+  const card = document.createElement('article');
+  card.className = 'card overflow-hidden'; card.id = 'file-' + f.id;
+  card.innerHTML = `
+    <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+      <div class="min-w-0">
+        <div class="font-bold truncate">${f.path.split('/').pop()} <span class="tag text-zinc-400 ml-1">${lines} lines</span></div>
+        <div class="text-xs text-zinc-500 truncate">${f.path} · ${f.note}</div>
+      </div>
+      <div class="flex gap-2 shrink-0">
+        <button class="btn-ghost" data-act="toggle">Collapse</button>
+        <button class="btn-ghost" data-act="dl">Download</button>
+        <button class="btn" data-act="copy">Copy Code</button>
+      </div>
+    </div>
+    <pre class="code"><code>${highlight(f.code, f.lang)}</code></pre>`;
+  card.addEventListener('click', async e => {
+    const act = e.target.dataset && e.target.dataset.act; if (!act) return;
+    if (act === 'copy') {
+      const ok = await copyText(f.code);
+      e.target.textContent = ok ? 'Copied ✓' : 'Failed'; toast(ok ? `Copied ${f.path.split('/').pop()}` : 'Copy failed');
+      setTimeout(() => e.target.textContent = 'Copy Code', 1600);
+    } else if (act === 'toggle') {
+      const pre = $('pre', card); const hidden = pre.style.display === 'none';
+      pre.style.display = hidden ? '' : 'none'; e.target.textContent = hidden ? 'Collapse' : 'Expand';
+    } else if (act === 'dl') {
+      const blob = new Blob([f.code], { type: 'text/plain' }); const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = f.path.split('/').pop(); a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+  });
+  fileList.appendChild(card);
+
+  const link = document.createElement('a');
+  link.href = '#file-' + f.id; link.dataset.id = f.id;
+  link.className = 'navlink block px-3 py-1.5 rounded-lg border border-transparent text-zinc-400 hover:text-white truncate';
+  link.textContent = f.path.split('/').pop();
+  fileNav.appendChild(link);
+});
+
+async function copyAll(btn) {
+  const all = FILES.map(f => `// ===== ${f.path} =====\n${f.code}`).join('\n');
+  const ok = await copyText(all);
+  const old = btn.textContent; btn.textContent = ok ? 'Copied ✓' : 'Failed'; toast(ok ? 'All files copied' : 'Copy failed');
+  setTimeout(() => btn.textContent = old, 1800);
+}
+
+// highlight active nav link while scrolling
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      const id = en.target.id.replace('file-', '');
+      fileNav.querySelectorAll('a').forEach(a => a.classList.toggle('active', a.dataset.id === id));
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+document.querySelectorAll('#fileList > article').forEach(a => io.observe(a));
+
+// ---------- commands table ----------
+const CMDS = [
+  ['/team create <name>', 'Create a team; you become the Owner.', 'None', 'Management'],
+  ['/team disband [confirm]', 'Disband the team. Run again with "confirm" within 10 seconds.', 'Owner', 'Management'],
+  ['/team color <color>', 'Red, Blue, Green, Yellow, Purple, Pink, Light Purple, Aqua, White.', 'Co-Owner', 'Management'],
+  ['/team invite <player>', 'Invite an online player (expires after 30 seconds).', 'Officer', 'Management'],
+  ['/team accept | deny', 'Answer a pending invitation.', 'None', 'Management'],
+  ['/team leave', 'Leave your team (owner must disband).', 'Member', 'Management'],
+  ['/team info [team]', 'Show members, color and limits.', 'None', 'Management'],
+  ['/team promote <player>', 'Member → Officer → Co-Owner (only lower than your own rank).', 'Co-Owner', 'Ranks'],
+  ['/team demote <player>', 'Lower a rank; loses chest access instantly.', 'Co-Owner', 'Ranks'],
+  ['/team kick <player>', 'Target must be in the team and have a lower rank.', 'Officer', 'Ranks'],
+  ['/team ban <player>', 'Ban from joining (kicks first if a member).', 'Co-Owner', 'Ranks'],
+  ['/team unban <player>', 'Remove a ban.', 'Co-Owner', 'Ranks'],
+  ['/team sethome <name>', 'Set a home. Limit: limits.max-homes (default 3).', 'Officer', 'Teleport'],
+  ['/team home [name]', 'Teleport to a home — warmup warmups.home-seconds (default 3 s), cancels on move/damage.', 'Member', 'Teleport'],
+  ['/team delhome <name>', 'Delete a home.', 'Officer', 'Teleport'],
+  ['/team setwarp <name>', 'Set a warp. Limit: limits.max-warps (default 5).', 'Officer', 'Teleport'],
+  ['/team warp [name]', 'Teleport to a warp — warmup warmups.warp-seconds (default 5 s), cancels on move/damage.', 'Member', 'Teleport'],
+  ['/team delwarp <name>', 'Delete a warp.', 'Officer', 'Teleport'],
+  ['/team chest', 'Open the shared 54-slot team chest (saved on close).', 'Officer', 'Chest'],
+  ['/team reload', 'Reload config.yml instantly (console allowed). Permission: mangoteams.admin.', 'Admin', 'Admin'],
+];
+const GROUPS = ['All', 'Management', 'Ranks', 'Teleport', 'Chest', 'Admin'];
+let activeGroup = 'All';
+const filtersEl = $('#cmdFilters');
+GROUPS.forEach(g => {
+  const b = document.createElement('button'); b.className = 'btn-ghost'; b.textContent = g;
+  b.onclick = () => { activeGroup = g; renderCmds(); }; b.dataset.g = g; filtersEl.appendChild(b);
+});
+function renderCmds() {
+  const q = $('#cmdSearch').value.trim().toLowerCase();
+  filtersEl.querySelectorAll('button').forEach(b => { b.style.borderColor = b.dataset.g === activeGroup ? '#ff4fd8' : ''; b.style.color = b.dataset.g === activeGroup ? '#fff' : ''; });
+  $('#cmdBody').innerHTML = CMDS.filter(c => (activeGroup === 'All' || c[3] === activeGroup) && (c[0] + c[1]).toLowerCase().includes(q))
+    .map(c => `<tr class="border-t border-[#2a1b45] hover:bg-white/5">
+      <td class="px-4 py-3 font-mono text-pink-300 whitespace-nowrap">${esc(c[0])}</td>
+      <td class="px-4 py-3 text-zinc-300">${esc(c[1])}</td>
+      <td class="px-4 py-3"><span class="tag text-purple-300">${c[2]}</span></td>
+      <td class="px-4 py-3 text-zinc-500">${c[3]}</td></tr>`).join('') ||
+    '<tr><td colspan="4" class="px-4 py-6 text-center text-zinc-500">No commands match.</td></tr>';
+}
+$('#cmdSearch').addEventListener('input', renderCmds); renderCmds();
+
+// ---------- permission matrix ----------
+const PERMS = [
+  ['Team chat, /team home, /team warp', 1, 1, 1, 1],
+  ['/team chest', 0, 1, 1, 1],
+  ['/team sethome, setwarp, delhome, delwarp', 0, 1, 1, 1],
+  ['/team invite', 0, 1, 1, 1],
+  ['/team kick (lower ranks only)', 0, 1, 1, 1],
+  ['/team promote, demote, ban, unban, color', 0, 0, 1, 1],
+  ['Promote someone to Co-Owner', 0, 0, 0, 1],
+  ['/team disband', 0, 0, 0, 1],
+];
+$('#permBody').innerHTML = PERMS.map(r => `<tr class="border-t border-[#2a1b45]"><td class="px-4 py-3 text-left text-zinc-300">${esc(r[0])}</td>${r.slice(1).map(v => `<td>${v ? '<span class="text-emerald-400 font-bold">✓</span>' : '<span class="text-zinc-600">—</span>'}</td>`).join('')}</tr>`).join('');
+
+// ---------- config chat preview ----------
+(function () {
+  const name = $('#cfgName'), color = $('#cfgColor'), rank = $('#cfgRank'), sym = $('#cfgSymbols'), out = $('#cfgPreview');
+  const SYMBOLS = { owner: ['★ ', '#ffaa00'], co: ['✦ ', '#ff5555'], officer: ['• ', '#ffff55'], member: ['', '#ffffff'] };
+  function render() {
+    const team = esc(name.value.trim() || 'Team');
+    const [s, sc] = SYMBOLS[rank.value];
+    out.innerHTML = `<span style="color:${color.value}">[${team}] </span>` +
+      (sym.checked && s ? `<span style="color:${sc}">${s}</span>` : '') +
+      `<span style="color:#fff">Steve</span><span style="color:#666"> » </span><span style="color:#aaa">Hello team!</span>`;
+  }
+  [name, color, rank, sym].forEach(el => el.addEventListener('input', render)); render();
+})();
+
+// ---------- dupe-guard simulator ----------
+const sim = (() => {
+  const S = { inTeam: true, rank: 'Officer', session: false, closing: false, other: false, lastOpen: -1e9, ram: false, disbanded: false };
+  const log = $('#simLog');
+  function say(text, kind = 'info') {
+    const c = { ok: 'text-emerald-400', bad: 'text-rose-400', info: 'text-zinc-300', warn: 'text-amber-300', tick: 'text-purple-300' }[kind];
+    const d = document.createElement('div'); d.className = 'logline ' + c;
+    d.textContent = `[${new Date().toLocaleTimeString([], { hour12: false })}] ${text}`; log.appendChild(d); log.scrollTop = log.scrollHeight;
+  }
+  function render() {
+    $('#simRank').textContent = S.inTeam ? S.rank : 'No team';
+    const t = $('#simTeam'); t.textContent = S.inTeam ? 'Yes' : (S.disbanded ? 'Disbanded' : 'No'); t.className = 'font-semibold ' + (S.inTeam ? 'text-emerald-400' : 'text-rose-400');
+    const s = $('#simSession'); s.textContent = S.closing ? 'Closing…' : S.session ? 'Active' : 'None'; s.className = 'font-semibold ' + (S.closing ? 'text-amber-300' : S.session ? 'text-pink-300' : 'text-zinc-300');
+    const o = $('#simOther'); o.textContent = S.other ? 'Yes' : 'No'; o.className = 'font-semibold ' + (S.other ? 'text-amber-300' : 'text-zinc-300');
+    const r = $('#simRam'); r.textContent = S.ram ? 'Loaded' : 'Released'; r.className = 'font-semibold ' + (S.ram ? 'text-pink-300' : 'text-zinc-300');
+  }
+  const canAccess = () => S.inTeam && !S.disbanded && (S.rank === 'Officer' || S.rank === 'Co-Owner');
+  function finalize(why) {
+    if (!S.session) return;
+    S.session = false; S.closing = false; say(`finalizeClose(): snapshot → saveAsync → ${S.disbanded ? 'skip persist (disbanded)' : 'queued to IO thread'}; releaseChest() (${why})`, 'ok'); S.ram = false; render();
+  }
+  function revoke(reason) {
+    if (!S.session || S.closing) return;
+    S.closing = true; render();
+    say(`revoke(): ${reason} → "closing" flag set, all clicks now cancelled`, 'warn');
+    setTimeout(() => { say('next tick: player.closeInventory()', 'tick'); S.other = false; finalize('forced close'); }, 650);
+  }
+  return {
+    open() {
+      const now = performance.now();
+      say('> /team chest');
+      if (now - S.lastOpen < 750) { S.lastOpen = now; return say('DENIED: open cooldown (750 ms) — spam / packet-burst blocked', 'bad'); }
+      S.lastOpen = now;
+      if (S.session || S.closing) return say('DENIED: active chest session already tracked for this player', 'bad');
+      if (S.other) return say('DENIED: previous InventoryView not fully closed (top inventory ≠ CRAFTING)', 'bad');
+      if (!canAccess()) return say(S.inTeam ? 'DENIED: rank below Officer' : 'DENIED: not in a team', 'bad');
+      S.session = true; S.ram = true; say('OK: session registered, live shared Inventory created, GUI opened', 'ok'); render();
+    },
+    spam() { for (let i = 0; i < 5; i++) this.open(); },
+    otherGui() {
+      if (S.session) { say('(vanilla closes the chest first when another container opens)', 'info'); finalize('another GUI opened'); }
+      S.other = true; say('Opened another container (e.g. ender chest).', 'info'); render();
+    },
+    click() {
+      if (!S.session) return say('Shift-click ignored: no chest GUI open (a forged click packet would hit the holder check → cancelled + closed)', 'warn');
+      say('InventoryClickEvent → allowed()?', 'info');
+      if (S.closing) return say('CANCELLED: session is closing (revoked this tick)', 'bad');
+      if (!canAccess()) { say('CANCELLED: membership/rank validation failed → forceClose()', 'bad'); return revoke('click by unauthorized player'); }
+      say('OK: session ✓ · live-inventory identity ✓ · rank ✓ — item moved', 'ok');
+    },
+    kick() {
+      if (!S.inTeam) return say('Steve is not in a team.', 'warn');
+      say('> /team kick Steve', 'info'); S.inTeam = false; say('removeMember(): index cleared, warmup cancelled, persist()', 'info'); revoke('kicked from team'); render();
+    },
+    demote() {
+      if (!S.inTeam || S.rank === 'Member') return say('Steve is already a Member / not in team.', 'warn');
+      say('> /team demote Steve', 'info'); S.rank = 'Member'; revoke('rank dropped below Officer'); render();
+    },
+    disband() {
+      if (S.disbanded) return say('Already disbanded.', 'warn');
+      say('> /team disband confirm', 'info'); S.disbanded = true; S.inTeam = false; revoke('team disbanded'); if (!S.session) say('Team file deleted via IO thread.', 'ok'); render();
+    },
+    reset() { Object.assign(S, { inTeam: true, rank: 'Officer', session: false, closing: false, other: false, lastOpen: -1e9, ram: false, disbanded: false }); say('— state reset —', 'info'); render(); },
+    clearLog() { log.innerHTML = ''; },
+  };
+})();
+sim.reset();
+</script>
+</body>
+</html>
